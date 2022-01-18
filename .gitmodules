@@ -1,15 +1,19 @@
 [submodule "unity/Assets/ROS/fetch_gazebo"]
 	path = unity/Assets/ROS/fetch_gazebo
 	url = git@github.com:fetchrobotics/fetch_gazebo.git
+	ignore = untracked
 [submodule "unity/Assets/ROS/fetch_msgs"]
 	path = unity/Assets/ROS/fetch_msgs
 	url = git@github.com:fetchrobotics/fetch_msgs.git
+	ignore = untracked
 [submodule "unity/Assets/ROS/fetch_ros"]
 	path = unity/Assets/ROS/fetch_ros
 	url = git@github.com:fetchrobotics/fetch_ros.git
+	ignore = untracked
 [submodule "unity/Assets/ROS/power_msgs"]
 	path = unity/Assets/ROS/power_msgs
 	url = git@github.com:fetchrobotics/power_msgs.git
+	ignore = untracked
 [submodule "ros/ros_tcp_endpoint"]
 	path = ros/ros_tcp_endpoint
 	url = git@github.com:Unity-Technologies/ROS-TCP-Endpoint.git
