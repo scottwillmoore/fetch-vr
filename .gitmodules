@@ -1,0 +1,12 @@
+[submodule "unity/Assets/ROS/fetch_gazebo"]
+	path = unity/Assets/ROS/fetch_gazebo
+	url = git@github.com:fetchrobotics/fetch_gazebo.git
+[submodule "unity/Assets/ROS/fetch_msgs"]
+	path = unity/Assets/ROS/fetch_msgs
+	url = git@github.com:fetchrobotics/fetch_msgs.git
+[submodule "unity/Assets/ROS/fetch_ros"]
+	path = unity/Assets/ROS/fetch_ros
+	url = git@github.com:fetchrobotics/fetch_ros.git
+[submodule "unity/Assets/ROS/power_msgs"]
+	path = unity/Assets/ROS/power_msgs
+	url = git@github.com:fetchrobotics/power_msgs.git
