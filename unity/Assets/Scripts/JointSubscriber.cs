@@ -33,16 +33,6 @@ public class JointSubscriber : MonoBehaviour
         }
     }
 
-    public void FixedUpdate()
-    {
-        var articulationBodies = this.GetComponentsInChildren<ArticulationBody>();
-
-        foreach (var articulationBody in articulationBodies)
-        {
-            articulationBody.Sleep();
-        }
-    }
-
     private void JointStateSubscription(JointStateMsg message)
     {
         for (var i = 0; i < message.name.Length; i++)
