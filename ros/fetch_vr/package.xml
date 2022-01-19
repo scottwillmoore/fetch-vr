@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+	<name>fetch_vr</name>
+	<version>1.0.0</version>
+
+	<description>A collection of scripts to communicate with the Fetch VR application</description>
+
+	<maintainer email="smoo38@student.monash.edu">Scott Moore</maintainer>
+	<maintainer email="sxuu41@student.monash.edu">Shiyu Xu</maintainer>
+
+	<license>MIT</license>
+
+	<build_depend>message_generation</build_depend>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<depend>message_runtime</depend>
+	<depend>rospy</depend>
+	<depend>std_msgs</depend>
+</package>
