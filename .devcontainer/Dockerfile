@@ -68,17 +68,19 @@ ENV TZ="${TIMEZONE}"
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt <<EOF
 apt-get update
-apt-get install --assume-yes --no-install-recommends software-properties-common
+apt-get install --assume-yes --no-install-recommends \
+	software-properties-common
 add-apt-repository ppa:kisak/turtle --yes
-apt-get update
-apt-get install --assume-yes --no-install-recommends mesa-utils
 EOF
 
 # Install ROS packages
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt <<EOF
 apt-get update
-apt-get install --assume-yes --no-install-recommends curl gnupg2
+apt-get install --assume-yes --no-install-recommends \
+	curl \
+	gnupg \
+	gnupg2
 EOF
 
 ARG ROS_DISTRIBUTION
@@ -89,14 +91,20 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
 curl --location --show-error --silent https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/ros-keyring.gpg
 echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros.list
 apt-get update
-apt-get install --assume-yes --no-install-recommends ros-${ROS_DISTRIBUTION}-${ROS_PACKAGE}
+apt-get install --assume-yes --no-install-recommends \
+	ros-${ROS_DISTRIBUTION}-${ROS_PACKAGE}
 EOF
 
-# Install ROS development packages
+# Install build packages
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt <<EOF
 apt-get update
-apt-get install --assume-yes --no-install-recommends build-essential python-rosdep python-rosinstall python-rosinstall-generator python-wstool
+apt-get install --assume-yes --no-install-recommends \
+	build-essential \
+	python-rosdep \
+	python-rosinstall \
+	python-rosinstall-generator \
+	python-wstool
 rosdep init
 rosdep update
 EOF
@@ -105,14 +113,29 @@ EOF
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt <<EOF
 apt-get update
-apt-get install --assume-yes --no-install-recommends ros-${ROS_DISTRIBUTION}-fetch-gazebo-demo ros-melodic-joint-state-publisher-gui
+apt-get install --assume-yes --no-install-recommends \
+	ros-${ROS_DISTRIBUTION}-fetch-gazebo-demo \
+	ros-melodic-joint-state-publisher-gui
 EOF
 
 # Install developer packages
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt <<EOF
 apt-get update
-apt-get install --assume-yes --no-install-recommends bash-completion curl less git git-lfs sudo tmux unzip vim wget zip
+apt-get install --assume-yes --no-install-recommends \
+	bash-completion \
+	curl \
+	git \
+	git-lfs \
+	less \
+	mesa-utils \
+	mesa-utils-extra \
+	sudo \
+	tmux \
+	unzip \
+	vim \
+	wget \
+	zip
 bash -c "$(curl --location --show-error --silent https://starship.rs/install.sh)" -- --yes
 EOF
 
@@ -123,7 +146,7 @@ mv /etc/apt/docker-clean /etc/apt/apt.conf.d
 rm --force --recursive /etc/apt/apt.conf.d/docker-keep-downloaded-packages
 EOF
 
-# Create a user account
+# Create a user
 
 ARG USERNAME
 
@@ -138,6 +161,8 @@ WORKDIR /home/${USERNAME}
 
 USER ${USERNAME}
 
+# Add files to the user
+
 ADD ./files/ ./
 
 RUN <<EOF
@@ -146,15 +171,9 @@ EOF
 
 # Setup a ROS workspace
 
-# NOTE: A better way to do this may be to setup a development container...
-# https://code.visualstudio.com/docs/remote/containers
-
-# RUN <<EOF
-# source /opt/ros/${ROS_DISTRIBUTION}/setup.bash
-# mkdir --parents ./workspace/src
-# pushd ./workspace/src
-# git lfs install
-# GIT_LFS_SKIP_SMUDGE=1 git clone --recurse-submodules git@github.com:scottwillmoore/research ./workspace/src/
-# popd
-# catkin_make
-# EOF
+RUN <<EOF
+source /opt/ros/${ROS_DISTRIBUTION}/setup.bash
+mkdir ./research ./workspace
+cd ./workspace
+ln --symbolic ../research/ros src
+EOF

@@ -14,6 +14,10 @@ if [[ -f /opt/ros/ROS_DISTRIBUTION/setup.bash ]]; then
 	source "/opt/ros/ROS_DISTRIBUTION/setup.bash"
 fi
 
+if [[ -f "${HOME}/workspace/devel/setup.bash" ]]; then
+	source "${HOME}/workspace/devel/setup.bash"
+fi
+
 alias grep="grep --color=auto"
 alias ls="ls --color=auto"
 alias sudo="sudo "
