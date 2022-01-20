@@ -5,17 +5,18 @@ using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using Unity.Robotics.ROSTCPConnector;
 using UnityEngine;
 
+using static OVRInput;
+
 public class PosePublisher : MonoBehaviour
 {
-    public GameObject baxter;
-
-    // public string buttonName;
+    public string frameId;
+    public GameObject frameReference;
 
     public string topicName;
+    public float topicFrequency = 10.0f;
 
-    // public string serviceName;
-
-    public float messageFrequency = 10.0f;
+    public string serviceName;
+    public RawButton serviceButton;
 
     private ROSConnection rosConnection;
 
@@ -37,19 +38,17 @@ public class PosePublisher : MonoBehaviour
 
     public void Update()
     {
+        var relativePosition = frameReference.transform.InverseTransformPoint(this.gameObject.transform.position);
+
         var message = new PoseStampedMsg();
-
+        message.header.frame_id = frameId;
         message.header.stamp = rosTime;
-        message.header.frame_id = "base";
-
         message.pose.orientation = this.gameObject.transform.rotation.To<FLU>();
-
-        var relativePosition = baxter.transform.InverseTransformPoint(this.gameObject.transform.position);
         message.pose.position = relativePosition.To<FLU>();
 
         timeElapsed += Time.deltaTime;
 
-        var messagePeriod = 1.0f / messageFrequency;
+        var messagePeriod = 1.0f / topicFrequency;
 
         if (timeElapsed > messagePeriod)
         {
@@ -58,14 +57,14 @@ public class PosePublisher : MonoBehaviour
             timeElapsed = 0;
         }
 
-        /*
-        if (Input.GetButtonDown(buttonName))
+        if (OVRInput.GetDown(serviceButton))
         {
-            var request = new MoveArmRequest();
-            request.pose = message;
-            rosConnection.SendServiceMessage<MoveArmResponse>(serviceName, request, MoveArmCallback);
+            Debug.Log("!!!");
+
+            // var request = new MoveArmRequest();
+            // request.pose = message;
+            // rosConnection.SendServiceMessage<MoveArmResponse>(serviceName, request, MoveArmCallback);
         }
-        */
     }
 
     private void ClockCallback(ClockMsg message)
