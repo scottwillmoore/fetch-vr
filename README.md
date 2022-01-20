@@ -24,7 +24,8 @@ ros-melodic-fetch-auto-dock-msgs
 ros-melodic-fetch-driver-msgs
 ros-melodic-fetch-ros
 ros-melodic-fetch-simulation
-ros-melodic-vision-msgs
+ros-melodic-jsk-recognition-msgs
+ros-melodic-jsk-rviz-plugins *only for visualisation in rviz
 ```
 
 ### Downloads
