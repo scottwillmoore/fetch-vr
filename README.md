@@ -4,12 +4,27 @@
 
 ### Prerequisites
 
+#### Install Git LFS
+
 This repository uses [Git Large File Storage (LFS)](https://git-lfs.github.com/) to manage and store files such as audio, video and graphics. The aim is to reduce the impact of large files in repositories. To download this repository you must first ensure that Git LFS is installed. Instructions for Debian-based operating systems can be found below, otherwise comprehensive instructions can be found in the [documentation](https://git-lfs.github.com/).
 
 ```bash
 sudo apt-get update
 sudo apt-get install git-lfs
 git lfs install
+```
+
+#### Install ROS Melodic
+
+The ROS packages require ROS Melodic to be installed. ROS Melodic requires Ubuntu Bionic and can be installed by following the instructions in [the ROS documentation](http://wiki.ros.org/melodic/Installation/Ubuntu). In addition, you must install the following ROS packages on Ubuntu.
+
+```
+ros-melodic-desktop
+ros-melodic-fetch-auto-dock-msgs
+ros-melodic-fetch-driver-msgs
+ros-melodic-fetch-ros
+ros-melodic-fetch-simulation
+ros-melodic-vision-msgs
 ```
 
 ### Downloads
