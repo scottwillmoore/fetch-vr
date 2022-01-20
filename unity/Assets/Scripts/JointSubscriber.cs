@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class JointSubscriber : MonoBehaviour
 {
+    public string jointStatesTopic = "joint_states";
+
     private ROSConnection rosConnection;
 
     private Dictionary<string, ArticulationBody> namedArticulationBodies;
@@ -13,7 +15,7 @@ public class JointSubscriber : MonoBehaviour
     public void Start()
     {
         rosConnection = ROSConnection.GetOrCreateInstance();
-        rosConnection.Subscribe<JointStateMsg>("robot/joint_states", JointStateSubscription);
+        rosConnection.Subscribe<JointStateMsg>(jointStatesTopic, JointStateSubscription);
 
         namedArticulationBodies = new Dictionary<string, ArticulationBody>();
 
@@ -21,14 +23,10 @@ public class JointSubscriber : MonoBehaviour
 
         foreach (var articulationBody in articulationBodies)
         {
-            if (articulationBody.jointType == ArticulationJointType.RevoluteJoint)
+            var urdfJoint = articulationBody.gameObject.GetComponent<UrdfJoint>();
+            if (urdfJoint != null)
             {
-                var urdfJoint = articulationBody.gameObject.GetComponent<UrdfJointRevolute>();
-
-                var linkName = urdfJoint.name;
-                var jointName = urdfJoint.jointName;
-
-                namedArticulationBodies[jointName] = articulationBody;
+                namedArticulationBodies[urdfJoint.jointName] = articulationBody;
             }
         }
     }
