@@ -38,11 +38,11 @@ There may be methods to reduce cost through the use of a local Git LFS server wh
 #### Clone with LFS files
 
 ```bash
-git clone --recurse-submodules git@github.com:scottwillmoore/research
+git clone --recurse-submodules git@github.com:scottwillmoore/fetch_vr
 ```
 
 #### Clone without LFS files
 
 ```bash
-GIT_LFS_SKIP_SMUDGE=1 git clone --recurse-submodules git@github.com:scottwillmoore/research
+GIT_LFS_SKIP_SMUDGE=1 git clone --recurse-submodules git@github.com:scottwillmoore/fetch_vr
 ```
