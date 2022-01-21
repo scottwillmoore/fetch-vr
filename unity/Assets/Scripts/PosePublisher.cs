@@ -9,14 +9,20 @@ using static OVRInput;
 
 public class PosePublisher : MonoBehaviour
 {
-    public string frameId;
-    public GameObject frameReference;
+    [Header("Reference Frame")]
+    [SerializeField] private string frameId;
+    [SerializeField] private GameObject frameObject;
 
-    public string topicName;
-    public float topicFrequency = 10.0f;
+    [Header("Published Topic")]
+    [SerializeField] private string topicName;
+    [SerializeField] private float topicFrequency = 10.0f;
 
-    public string serviceName;
-    public RawButton serviceButton;
+    [Header("Motion Plan Service")]
+    [SerializeField] private string serviceName;
+    [SerializeField] private RawButton serviceButton;
+
+    [Header("Execute Trajectory Action")]
+    [SerializeField] private string actionName;
 
     private ROSConnection rosConnection;
 
@@ -38,7 +44,7 @@ public class PosePublisher : MonoBehaviour
 
     public void Update()
     {
-        var relativePosition = frameReference.transform.InverseTransformPoint(this.gameObject.transform.position);
+        var relativePosition = frameObject.transform.InverseTransformPoint(this.gameObject.transform.position);
 
         var message = new PoseStampedMsg();
         message.header.frame_id = frameId;
