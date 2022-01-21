@@ -26,6 +26,7 @@ ros-melodic-fetch-ros
 ros-melodic-fetch-simulation
 ros-melodic-jsk-recognition-msgs
 ros-melodic-jsk-rviz-plugins *only for visualisation in rviz
+ros-melodic-tf2-sensor-msgs
 ```
 
 ### Downloads

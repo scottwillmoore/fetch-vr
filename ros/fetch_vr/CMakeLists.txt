@@ -45,6 +45,7 @@ catkin_install_python(
 		scripts/example.py
 		scripts/segmentation.py
 		scripts/lib_cloud_conversion_between_Open3D_and_ROS.py
+		scripts/transform_point_cloud.py
 	DESTINATION
 		${CATKIN_PACKAGE_BIN_DESTINATION}
 )
