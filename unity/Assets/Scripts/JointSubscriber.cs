@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class JointSubscriber : MonoBehaviour
 {
-    public string jointStatesTopic = "joint_states";
+    [SerializeField]
+    private string jointStatesTopic = "/joint_states";
 
     private ROSConnection rosConnection;
 
@@ -20,7 +21,6 @@ public class JointSubscriber : MonoBehaviour
         namedArticulationBodies = new Dictionary<string, ArticulationBody>();
 
         var articulationBodies = this.GetComponentsInChildren<ArticulationBody>();
-
         foreach (var articulationBody in articulationBodies)
         {
             var urdfJoint = articulationBody.gameObject.GetComponent<UrdfJoint>();
