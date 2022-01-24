@@ -39,4 +39,5 @@ class TransformPointCloud():
 if __name__ == '__main__':
     rospy.init_node('transform_point_cloud')
     transform_point_cloud = TransformPointCloud()
+    print("Publishing point cloud in base frame...")
     rospy.spin()
