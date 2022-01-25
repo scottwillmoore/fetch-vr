@@ -13,3 +13,9 @@
 [submodule "ros_tcp_endpoint"]
 	path = ros/ros_tcp_endpoint
 	url = git@github.com:Unity-Technologies/ROS-TCP-Endpoint.git
+[submodule "ros/jsk_recognition"]
+	path = ros/jsk_recognition
+	url = git@github.com:jsk-ros-pkg/jsk_recognition.git
+[submodule "geometry2"]
+	path = ros/geometry2
+	url = git@github.com:ros/geometry2.git
