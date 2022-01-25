@@ -14,7 +14,7 @@ class Segmentation():
 
     def __init__(self):
         self.point_cloud_listener = rospy.Subscriber(
-            'base_point_cloud',
+            'base_frame_point_cloud',
             PointCloud2,
             self.callback,
             queue_size=1,
