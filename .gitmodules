@@ -1,13 +1,13 @@
-[submodule "fetch_gazebo"]
-	path = ros/fetch_gazebo
-	url = git@github.com:fetchrobotics/fetch_gazebo.git
 [submodule "fetch_msgs"]
+	branch = melodic-devel
 	path = ros/fetch_msgs
 	url = git@github.com:fetchrobotics/fetch_msgs.git
-[submodule "fetch_ros"]
-	path = ros/fetch_ros
-	url = git@github.com:fetchrobotics/fetch_ros.git
+[submodule "moveit_msgs"]
+	branch = melodic-devel
+	path = ros/moveit_msgs
+	url = git@github.com:ros-planning/moveit_msgs.git
 [submodule "power_msgs"]
+	branch = melodic-devel
 	path = ros/power_msgs
 	url = git@github.com:fetchrobotics/power_msgs.git
 [submodule "ros_tcp_endpoint"]

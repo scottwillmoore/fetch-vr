@@ -674,13 +674,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   frameId: base_link
-  frameObject: {fileID: 8005223196799451891}
+  frameReference: {fileID: 8005223196799451891}
   clockTopicName: /clock
   poseTopicName: /unity/right_controller
   poseTopicFrequency: 10
-  motionPlanServiceName: 
-  motionPlanServiceButton: 0
-  executeTrajectoryActionName: 
+  motionPlanServiceName: /plan_kinematic_path
+  motionPlanButton: 1
+  linkName: gripper_link
+  groupName: arm
+  planningAttempts: 1
+  allowedPlanningTime: 5
+  maxVelocityScalingFactor: 1
+  maxAccelerationScalingFactor: 1
+  positionTolerance: 0.001
+  orientationTolerance: 0.001
 --- !u!1 &304976967 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4774419567722279104, guid: e870b3caf2672e243864a00819d4e995, type: 3}
@@ -1178,19 +1185,26 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1713619113}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9202b99284611a468633bf137f077a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   frameId: base_link
-  frameObject: {fileID: 8005223196799451891}
+  frameReference: {fileID: 0}
   clockTopicName: /clock
   poseTopicName: /unity/left_controller
   poseTopicFrequency: 10
   motionPlanServiceName: 
-  motionPlanServiceButton: 0
-  executeTrajectoryActionName: 
+  motionPlanButton: 0
+  linkName: 
+  groupName: 
+  planningAttempts: 1
+  allowedPlanningTime: 5
+  maxVelocityScalingFactor: 1
+  maxAccelerationScalingFactor: 1
+  positionTolerance: 0.001
+  orientationTolerance: 0.001
 --- !u!4 &1746428854 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7810343073794584971, guid: 48cd96ab837d1ec458329f974e4454db, type: 3}
