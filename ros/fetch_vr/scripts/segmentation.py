@@ -9,6 +9,7 @@ from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import Point, Quaternion, Pose, Vector3
 from jsk_recognition_msgs.msg import BoundingBox, BoundingBoxArray
 from lib_cloud_conversion_between_Open3D_and_ROS import convertCloudFromRosToOpen3d, convertCloudFromOpen3dToRos
+from open3d_ros_helper import rospc_to_o3dpc, o3dpc_to_rospc
 
 class Segmentation():
 
@@ -40,10 +41,10 @@ class Segmentation():
         pcd_frame = pcd_ros.header.frame_id
         # print(pcd_frame)
 
-        pcd = convertCloudFromRosToOpen3d(pcd_ros)
+        pcd = rospc_to_o3dpc(pcd_ros)
 
         # Run RANSAC to detect largest plane, assume this is the table
-        plane_threshold = 7500
+        plane_threshold = 5000
 
         while True:
             plane_model, inliers = pcd.segment_plane(distance_threshold=0.01,ransac_n=3,num_iterations=100)
@@ -61,7 +62,7 @@ class Segmentation():
             print(f"Removed plane with {plane_size} points")
         
         # Run DBscan on the rest of the point cloud to segment the objects on the table
-        labels = np.array(pcd.cluster_dbscan(eps=0.04, min_points=500))
+        labels = np.array(pcd.cluster_dbscan(eps=0.05, min_points=500))
         max_label = labels.max()
         print(f"{max_label + 1} objects detected in point cloud")
 
@@ -107,7 +108,7 @@ class Segmentation():
         print("Publishing bounding boxes...")
 
         # Publish segmented point cloud
-        pcd_msg = convertCloudFromOpen3dToRos(pcd, pcd_frame)
+        pcd_msg = o3dpc_to_rospc(pcd, frame_id=pcd_frame)
 
         self.point_cloud_publisher.publish(pcd_msg)
         print("Publishing objects point cloud...")
