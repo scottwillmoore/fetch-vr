@@ -1,8 +1,7 @@
-using RosMessageTypes.BuiltinInterfaces;
 using RosMessageTypes.Geometry;
 using RosMessageTypes.Moveit;
-using RosMessageTypes.Rosgraph;
 using RosMessageTypes.Shape;
+using Unity.Robotics.ROSTCPConnector.MessageGeneration;
 using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using Unity.Robotics.ROSTCPConnector;
 using UnityEngine;
@@ -10,20 +9,16 @@ using UnityEngine;
 public class PosePublisher : MonoBehaviour
 {
     private ROSConnection rosConnection;
+    private ROSTime rosTime;
 
     [SerializeField] private string frameId;
     [SerializeField] private GameObject frameReference;
-
-    [Header("Clock Topic Subscriber")]
-
-    [SerializeField] private string clockTopicName;
-
-    private TimeMsg latestTime;
 
     [Header("Pose Topic Publisher")]
 
     [SerializeField] private string poseTopicName;
     [SerializeField] private float poseTopicFrequency = 10.0f;
+
     private float poseTopicPeriod;
 
     private float timeElapsed;
@@ -31,38 +26,98 @@ public class PosePublisher : MonoBehaviour
     [Header("Motion Plan Service")]
 
     [SerializeField] private string motionPlanServiceName;
+
+    [Space(8)]
     [SerializeField] private OVRInput.RawButton motionPlanButton;
-    [SerializeField] private string linkName;
+
+    [Space(8)]
+    [SerializeField] private GameObject motionPlanMarker;
+
+    [Space(8)]
     [SerializeField] private string groupName;
+    [SerializeField] private string linkName;
+
+    [Space(8)]
     [SerializeField] private int planningAttempts = 1;
     [SerializeField] private double allowedPlanningTime = 5.0;
+
+    [Space(8)]
     [SerializeField] private double maxVelocityScalingFactor = 1.0;
     [SerializeField] private double maxAccelerationScalingFactor = 1.0;
+
+    [Space(8)]
     [SerializeField] private double positionTolerance = 1e-3;
     [SerializeField] private double orientationTolerance = 1e-3;
+
+    private bool waitForMotionPlan;
+    private bool motionPlanSuccess;
+
+    private RobotTrajectoryMsg latestRobotTrajectory;
+
+    [Header("Execute Trajectory Action")]
+
+    [SerializeField] private string executeTrajectoryActionName;
+
+    [Space(8)]
+    [SerializeField] private OVRInput.RawButton executeTrajectoryButton;
+
+    private SimpleActionClient<
+            ExecuteTrajectoryAction,
+            ExecuteTrajectoryActionGoal,
+            ExecuteTrajectoryActionResult,
+            ExecuteTrajectoryActionFeedback,
+            ExecuteTrajectoryGoal,
+            ExecuteTrajectoryResult,
+            ExecuteTrajectoryFeedback
+        > executeTrajectoryClient;
+
+    private bool waitForExecuteTrajectory;
+
+#if UNITY_EDITOR
+    [UnityEditor.InitializeOnLoadMethod]
+#else
+    [UnityEngine.RuntimeInitializeOnLoadMethod]
+#endif
+    public static void Register()
+    {
+        MessageRegistry.Register(ExecuteTrajectoryAction.k_RosMessageName, ExecuteTrajectoryAction.Deserialize);
+        MessageRegistry.Register(ExecuteTrajectoryActionGoal.k_RosMessageName, ExecuteTrajectoryActionGoal.Deserialize);
+        MessageRegistry.Register(ExecuteTrajectoryActionResult.k_RosMessageName, ExecuteTrajectoryActionResult.Deserialize);
+        MessageRegistry.Register(ExecuteTrajectoryActionFeedback.k_RosMessageName, ExecuteTrajectoryActionFeedback.Deserialize);
+    }
 
     public void Start()
     {
         rosConnection = ROSConnection.GetOrCreateInstance();
-
-        latestTime = new TimeMsg();
-        rosConnection.Subscribe<ClockMsg>(clockTopicName, ClockCallback);
+        rosTime = ROSTime.GetOrCreateInstance();
 
         rosConnection.RegisterPublisher<PoseStampedMsg>(poseTopicName);
         poseTopicPeriod = 1.0f / poseTopicFrequency;
 
         rosConnection.RegisterRosService<GetMotionPlanRequest, GetMotionPlanResponse>(motionPlanServiceName);
+
+        executeTrajectoryClient = new SimpleActionClient<
+                ExecuteTrajectoryAction,
+                ExecuteTrajectoryActionGoal,
+                ExecuteTrajectoryActionResult,
+                ExecuteTrajectoryActionFeedback,
+                ExecuteTrajectoryGoal,
+                ExecuteTrajectoryResult,
+                ExecuteTrajectoryFeedback
+            >(executeTrajectoryActionName);
     }
 
     public void Update()
     {
+        var latestTime = rosTime.Now();
+
         var relativePosition = frameReference.transform.InverseTransformPoint(gameObject.transform.position);
-        var relativeOrientation = Quaternion.Inverse(gameObject.transform.rotation) * frameReference.transform.rotation;
+        var relativeRotation = Quaternion.Inverse(gameObject.transform.rotation) * frameReference.transform.rotation;
 
         var pose = new PoseStampedMsg();
         pose.header.frame_id = frameId;
         pose.header.stamp = latestTime;
-        pose.pose.orientation = relativeOrientation.To<FLU>();
+        pose.pose.orientation = relativeRotation.To<FLU>();
         pose.pose.position = relativePosition.To<FLU>();
 
         timeElapsed += Time.deltaTime;
@@ -72,29 +127,95 @@ public class PosePublisher : MonoBehaviour
             timeElapsed = 0;
         }
 
+        var meshRenderer = motionPlanMarker.GetComponent<MeshRenderer>();
+        var transform = motionPlanMarker.GetComponent<Transform>();
+
         if (OVRInput.GetDown(motionPlanButton))
         {
-            Debug.Log("Get Motion Plan Request");
+            if (waitForMotionPlan)
+            {
+                // TODO: Feedback: A motion plan is in progress
+            }
+            else
+            {
+                meshRenderer.material.SetColor("_Color", Color.blue);
+                transform.position = relativePosition;
+                transform.rotation = relativeRotation;
 
-            var request = new GetMotionPlanRequest();
-            request.motion_plan_request = CreateMotionPlanRequest(pose);
+                var request = new GetMotionPlanRequest();
+                request.motion_plan_request = CreateMotionPlanRequest(pose);
 
-            Debug.Log(request.ToString());
+                waitForMotionPlan = true;
+                motionPlanSuccess = false;
 
-            rosConnection.SendServiceMessage<GetMotionPlanResponse>(motionPlanServiceName, request, GetMotionPlanCallback);
+                rosConnection.SendServiceMessage<GetMotionPlanResponse>(motionPlanServiceName, request, MotionPlanCallback);
+
+                Debug.Log(request.ToString());
+            }
+        }
+
+        if (OVRInput.GetDown(executeTrajectoryButton))
+        {
+            if (motionPlanSuccess)
+            {
+                if (waitForExecuteTrajectory)
+                {
+                    // TODO: Feedback: An executed trajectory is in progress
+                }
+                else
+                {
+                    waitForExecuteTrajectory = true;
+
+                    var request = new ExecuteKnownTrajectoryRequest();
+
+                    var goal = new ExecuteTrajectoryGoal();
+                    goal.trajectory = latestRobotTrajectory;
+
+                    executeTrajectoryClient.Send(goal, ExecuteTrajectoryCallback);
+
+                    Debug.Log(request.ToString());
+                }
+            }
+            else
+            {
+                // TODO: Feedback: There is no successful plan to execute
+            }
         }
     }
 
-    private void ClockCallback(ClockMsg message)
+    private void MotionPlanCallback(GetMotionPlanResponse response)
     {
-        latestTime = message.clock;
+        Debug.Log(response.ToString());
+
+        waitForMotionPlan = false;
+
+        var errorCode = response.motion_plan_response.error_code.val;
+        motionPlanSuccess = errorCode == MoveItErrorCodesMsg.SUCCESS;
+
+        var meshRenderer = motionPlanMarker.GetComponent<MeshRenderer>();
+        var transform = motionPlanMarker.GetComponent<Transform>();
+
+        if (motionPlanSuccess)
+        {
+            latestRobotTrajectory = response.motion_plan_response.trajectory;
+
+            meshRenderer.material.SetColor("_Color", Color.green);
+
+            // TODO: Update transform to match the response destination
+            // transform.position = ...;
+            // transform.rotation = ...;
+        }
+        else
+        {
+            meshRenderer.material.SetColor("_Color", Color.red);
+        }
     }
 
-    private void GetMotionPlanCallback(GetMotionPlanResponse response)
+    private void ExecuteTrajectoryCallback(ExecuteTrajectoryResult result)
     {
-        Debug.Log("Get Motion Plan Response");
+        Debug.Log("Result: Error Code: " + result.error_code);
 
-        Debug.Log(response.ToString());
+        waitForExecuteTrajectory = false;
     }
 
     private MotionPlanRequestMsg CreateMotionPlanRequest(PoseStampedMsg pose)

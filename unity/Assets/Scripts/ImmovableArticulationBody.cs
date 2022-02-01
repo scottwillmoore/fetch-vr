@@ -13,7 +13,7 @@ public class ImmovableArticulationBody : MonoBehaviour
             }
             else
             {
-                articulationBody.jointFriction = 1.0f;
+                articulationBody.jointFriction = float.PositiveInfinity;
             }
         }
     }
