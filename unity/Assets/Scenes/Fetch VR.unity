@@ -9048,6 +9048,7 @@ GameObject:
   - component: {fileID: 6537806870055511579}
   - component: {fileID: 1982598884}
   - component: {fileID: 1982598885}
+  - component: {fileID: 6537806870055511580}
   m_Layer: 0
   m_Name: Fetch
   m_TagString: Untagged
@@ -9067,6 +9068,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 273648926123b7941a57f2b6470345ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6537806870055511580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6537806870055511578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eb108fdc5013d0489addfb4f2412727, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boxTopic: /segmentation/bounding_boxes
 --- !u!1001 &6542151268634729612
 PrefabInstance:
   m_ObjectHideFlags: 0
