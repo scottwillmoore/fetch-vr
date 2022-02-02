@@ -4,10 +4,9 @@ using Unity.Robotics.ROSTCPConnector;
 using Unity.Robotics.UrdfImporter;
 using UnityEngine;
 
-public class JointSubscriber : MonoBehaviour
+public class JointStateSubscriber : MonoBehaviour
 {
-    [SerializeField]
-    private string jointStatesTopic = "/joint_states";
+    [SerializeField] private string jointStatesTopic = "/joint_states";
 
     private ROSConnection rosConnection;
 

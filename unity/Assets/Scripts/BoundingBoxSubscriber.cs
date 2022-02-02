@@ -1,21 +1,16 @@
 using RosMessageTypes.JskRecognition;
-using RosMessageTypes.Geometry;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Robotics.ROSTCPConnector;
 using Unity.Robotics.ROSTCPConnector.ROSGeometry;
+using Unity.Robotics.ROSTCPConnector;
 using UnityEngine;
 
 public class BoundingBoxSubscriber : MonoBehaviour
 {
-    [SerializeField]
-    private string boxTopic = "/segmentation/bounding_boxes";
+    [SerializeField] private string boxTopic = "/segmentation/bounding_boxes";
 
     private ROSConnection rosConnection;
 
     public void Start()
     {
-        // set up ros subscriber
         rosConnection = ROSConnection.GetOrCreateInstance();
         rosConnection.Subscribe<BoundingBoxArrayMsg>(boxTopic, BoundingBoxesCallback);
     }
@@ -25,13 +20,13 @@ public class BoundingBoxSubscriber : MonoBehaviour
         // Debug.Log(message);
         // destroy previous exisiting bounding boxes
         GameObject[] oldBoxes = GameObject.FindGameObjectsWithTag("Bounding Box");
-        foreach(GameObject oldBox in oldBoxes)
+        foreach (GameObject oldBox in oldBoxes)
         {
             GameObject.Destroy(oldBox);
         }
 
         // get coordinates from message for each box
-        foreach(var box in message.boxes)
+        foreach (var box in message.boxes)
         {
             // Debug.Log(box);
 

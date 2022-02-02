@@ -1,19 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tint : MonoBehaviour
+public class TintMaterial : MonoBehaviour
 {
-    [SerializeField]
-    private Color tintColor;
+    [SerializeField] private Color tintColor;
 
-    [SerializeField]
-    private float tintStrength;
+    [SerializeField] private float tintStrength;
 
     private List<(Renderer renderer, Color oldColor)> initialRenderers;
 
     public void OnValidate()
     {
-        SetTint();
+        Tint();
     }
 
     public void Start()
@@ -27,10 +25,10 @@ public class Tint : MonoBehaviour
             initialRenderers.Add((renderer, oldColor));
         }
 
-        SetTint();
+        Tint();
     }
 
-    private void SetTint()
+    private void Tint()
     {
         if (initialRenderers == null)
         {

@@ -1,7 +1,6 @@
 using RosMessageTypes.Geometry;
 using RosMessageTypes.Moveit;
 using RosMessageTypes.Shape;
-using Unity.Robotics.ROSTCPConnector.MessageGeneration;
 using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using Unity.Robotics.ROSTCPConnector;
 using UnityEngine;
@@ -52,6 +51,16 @@ public class PosePublisher : MonoBehaviour
     private bool waitForMotionPlan;
     private bool motionPlanSuccess;
 
+    private SimpleActionClient<
+            MoveGroupAction,
+            MoveGroupActionGoal,
+            MoveGroupActionResult,
+            MoveGroupActionFeedback,
+            MoveGroupGoal,
+            MoveGroupResult,
+            MoveGroupFeedback
+        > moveGroupClient;
+
     private RobotTrajectoryMsg latestRobotTrajectory;
 
     [Header("Execute Trajectory Action")]
@@ -72,19 +81,6 @@ public class PosePublisher : MonoBehaviour
         > executeTrajectoryClient;
 
     private bool waitForExecuteTrajectory;
-
-#if UNITY_EDITOR
-    [UnityEditor.InitializeOnLoadMethod]
-#else
-    [UnityEngine.RuntimeInitializeOnLoadMethod]
-#endif
-    public static void Register()
-    {
-        MessageRegistry.Register(ExecuteTrajectoryAction.k_RosMessageName, ExecuteTrajectoryAction.Deserialize);
-        MessageRegistry.Register(ExecuteTrajectoryActionGoal.k_RosMessageName, ExecuteTrajectoryActionGoal.Deserialize);
-        MessageRegistry.Register(ExecuteTrajectoryActionResult.k_RosMessageName, ExecuteTrajectoryActionResult.Deserialize);
-        MessageRegistry.Register(ExecuteTrajectoryActionFeedback.k_RosMessageName, ExecuteTrajectoryActionFeedback.Deserialize);
-    }
 
     public void Start()
     {
@@ -166,14 +162,10 @@ public class PosePublisher : MonoBehaviour
                 {
                     waitForExecuteTrajectory = true;
 
-                    var request = new ExecuteKnownTrajectoryRequest();
-
                     var goal = new ExecuteTrajectoryGoal();
                     goal.trajectory = latestRobotTrajectory;
 
                     executeTrajectoryClient.Send(goal, ExecuteTrajectoryCallback);
-
-                    Debug.Log(request.ToString());
                 }
             }
             else

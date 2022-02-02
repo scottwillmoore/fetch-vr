@@ -2,11 +2,9 @@ using UnityEngine;
 
 public class TransformSubscriber : MonoBehaviour
 {
-    [SerializeField]
-    private string transformTopic = "/tf";
+    [SerializeField] private string transformTopic = "/tf";
 
-    [SerializeField]
-    private string frameId;
+    [SerializeField] private string frameId;
 
     private ArticulationBody rootArticulationBody;
 

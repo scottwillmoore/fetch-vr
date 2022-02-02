@@ -6,10 +6,9 @@ using Unity.Robotics.ROSTCPConnector;
 using Unity.Robotics.UrdfImporter;
 using UnityEngine;
 
-public class JointTrajectoryAnimator : MonoBehaviour
+public class JointTrajectorySubscriber : MonoBehaviour
 {
-    [SerializeField]
-    private string displayPlannedPathTopic = "/move_group/display_planned_path";
+    [SerializeField] private string displayPlannedPathTopic = "/move_group/display_planned_path";
 
     private ROSConnection rosConnection;
 
