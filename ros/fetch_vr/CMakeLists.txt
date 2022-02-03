@@ -52,7 +52,7 @@ catkin_install_python(
 
 install(
 	FILES
-		launch/test.launch
+		launch/fetch_vr.launch
 	DESTINATION
 		${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

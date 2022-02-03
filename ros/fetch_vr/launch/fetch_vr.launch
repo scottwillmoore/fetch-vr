@@ -1,0 +1,23 @@
+<launch>
+
+    <arg name="source_cloud" default="/head_camera/depth_registered/points" />
+    
+    <arg name="segmented_cloud" default="/segmentation/objects_point_cloud" />
+    <arg name="transform_from" default="head_camera_rgb_optical_frame" />
+    <arg name="transform_to" default="base_link" />
+
+    <arg name="markerSize" default="0.10"/>
+    <arg name="ref_frame" default="base_link"/>
+
+    <node pkg="fetch_vr" type="segmentation.py" name="segmentation_publisher">
+        <param name="source_cloud_topic" value="$(arg source_cloud)"/>
+    </node>
+
+    <node pkg="fetch_vr" type="transform_point_cloud.py" name="base_frame_cloud_publisher">
+        <param name="segmented_cloud_topic" value="$(arg segmented_cloud)" />
+        <param name="source_frame_topic" value="$(arg transform_from)" />
+        <param name="transform_frame_topic" value="$(arg transform_to)"/>
+    </node>
+
+    <include file="$(find aruco_ros)/launch/marker_publisher.launch" pass_all_args="true"/>
+</launch>

@@ -11,6 +11,10 @@ import PyKDL
 class TransformPointCloud():
     
     def __init__(self):
+        self.segmented_cloud_topic = rospy.get_param("~segmented_cloud_topic")
+        self.source_frame_topic = rospy.get_param("~source_frame_topic")
+        self.transform_frame_topic = rospy.get_param("~transform_frame_topic")
+        
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
         self.pcd_publisher = rospy.Publisher(
@@ -19,7 +23,7 @@ class TransformPointCloud():
             queue_size=1
             )
         self.pcd_subscriber = rospy.Subscriber(
-            '/head_camera/depth_registered/points',
+            self.segmented_cloud_topic,
             PointCloud2,
             self.pcd_callback,
             queue_size=1
@@ -28,8 +32,8 @@ class TransformPointCloud():
 
     def pcd_callback(self, pcd):
         trans = self.tf_buffer.lookup_transform(
-            'base_link', 
-            'head_camera_rgb_optical_frame', 
+            self.transform_frame_topic, 
+            self.source_frame_topic, 
             rospy.Time()
             )
 
