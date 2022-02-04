@@ -1,8 +1,8 @@
 <launch>
 
-    <arg name="source_cloud" default="/head_camera/depth_registered/points" />
+    <arg name="transformed_cloud" default="base_frame_point_cloud" />
     
-    <arg name="segmented_cloud" default="/segmentation/objects_point_cloud" />
+    <arg name="source_cloud" default="/head_camera/depth_registered/points" />
     <arg name="transform_from" default="head_camera_rgb_optical_frame" />
     <arg name="transform_to" default="base_link" />
 
@@ -10,14 +10,18 @@
     <arg name="ref_frame" default="base_link"/>
 
     <node pkg="fetch_vr" type="segmentation.py" name="segmentation_publisher">
-        <param name="source_cloud_topic" value="$(arg source_cloud)"/>
+        <param name="input_cloud_topic" value="$(arg transformed_cloud)"/>
     </node>
 
     <node pkg="fetch_vr" type="transform_point_cloud.py" name="base_frame_cloud_publisher">
-        <param name="segmented_cloud_topic" value="$(arg segmented_cloud)" />
+        <param name="input_cloud_topic" value="$(arg source_cloud)" />
         <param name="source_frame_topic" value="$(arg transform_from)" />
         <param name="transform_frame_topic" value="$(arg transform_to)"/>
     </node>
 
     <include file="$(find aruco_ros)/launch/marker_publisher.launch" pass_all_args="true"/>
+
+    <node pkg="ros_tcp_endpoint"  type="default_server_endpoint.py" name="ros_tcp_endpoint" args="--wait" output="screen" respawn="true" >
+        <param name="ROS_IP" value="0.0.0.0"/>
+    </node>
 </launch>

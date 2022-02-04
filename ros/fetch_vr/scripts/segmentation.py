@@ -14,10 +14,10 @@ from open3d_ros_helper import rospc_to_o3dpc, o3dpc_to_rospc
 class Segmentation():
 
     def __init__(self):
-        self.source_cloud_topic = rospy.get_param('~source_cloud_topic')
+        self.input_cloud_topic = rospy.get_param('~input_cloud_topic')
 
         self.point_cloud_listener = rospy.Subscriber(
-            self.source_cloud_topic,
+            self.input_cloud_topic,
             PointCloud2,
             self.callback,
             queue_size=1,

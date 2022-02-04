@@ -11,7 +11,7 @@ import PyKDL
 class TransformPointCloud():
     
     def __init__(self):
-        self.segmented_cloud_topic = rospy.get_param("~segmented_cloud_topic")
+        self.input_cloud_topic = rospy.get_param("~input_cloud_topic")
         self.source_frame_topic = rospy.get_param("~source_frame_topic")
         self.transform_frame_topic = rospy.get_param("~transform_frame_topic")
         
@@ -23,7 +23,7 @@ class TransformPointCloud():
             queue_size=1
             )
         self.pcd_subscriber = rospy.Subscriber(
-            self.segmented_cloud_topic,
+            self.input_cloud_topic,
             PointCloud2,
             self.pcd_callback,
             queue_size=1
