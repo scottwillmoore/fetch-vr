@@ -42,6 +42,7 @@ public class BoundingBoxSubscriber : MonoBehaviour
             cube.transform.position = position;
             cube.transform.rotation = orientation;
             cube.transform.localScale = dimensions;
+            cube.transform.SetParent(gameObject.transform, false);
 
             // make cube transparent
             Material mat = cube.GetComponent<Renderer>().material;

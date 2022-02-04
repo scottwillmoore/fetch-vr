@@ -26,7 +26,15 @@ public class TransformSubscriber : MonoBehaviour
         var transformObject = TFSystem.GetOrCreateInstance().GetTransformObject(frameId, transformTopic);
         if (transformObject != null)
         {
-            rootArticulationBody.TeleportRoot(transformObject.transform.position, transformObject.transform.rotation);
+            if (rootArticulationBody != null)
+            {
+                rootArticulationBody.TeleportRoot(transformObject.transform.position, transformObject.transform.rotation);
+            }
+            else
+            {
+                gameObject.transform.position = transformObject.transform.position;
+                gameObject.transform.rotation = transformObject.transform.rotation;
+            }
         }
     }
 }

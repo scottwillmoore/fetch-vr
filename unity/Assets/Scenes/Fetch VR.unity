@@ -265,6 +265,65 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &182163183
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 182163186}
+  - component: {fileID: 182163185}
+  - component: {fileID: 182163184}
+  m_Layer: 0
+  m_Name: BoundingBoxes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &182163184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182163183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 174d6a0180819c249b1e2d8c6a6cf85e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transformTopic: /tf
+  frameId: base_link
+--- !u!114 &182163185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182163183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eb108fdc5013d0489addfb4f2412727, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boxTopic: /segmentation/bounding_boxes
+--- !u!4 &182163186
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182163183}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.75405395, y: 2.4978507, z: -0.4707358}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &209218140
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -316,9 +375,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7326275224344492753, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
-      propertyPath: m_Name
-      value: Fetch Plan
+    - target: {fileID: 8702181149310035113, guid: 96a734d5e273fd14c9ef815429e238b7, type: 3}
+      propertyPath: m_RosIPAddress
+      value: 160.69.69.80
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
@@ -1227,6 +1286,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jointStatesTopic: /joint_states
+--- !u!114 &6537806870055511582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6537806870055511578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf91aaba9f16d3444b39c28e611d5974, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arucoTopic: /aruco_marker_publisher/markers
+  table: {fileID: 100002, guid: 398008aaa9b8a2e4ebd3860a13db4038, type: 3}
 --- !u!1 &8005223196799451891 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5768715436769861176, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
