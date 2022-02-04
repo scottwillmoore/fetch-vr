@@ -5,7 +5,7 @@ using RosMessageTypes.Actionlib;
 
 namespace RosMessageTypes.Moveit
 {
-    public class MoveGroupSequenceActionFeedback : ActionFeedback<MoveGroupSequenceFeedback>
+    public class MoveGroupSequenceActionFeedback : Unity.Robotics.ROSTCPConnector.MessageGeneration.ActionFeedback<MoveGroupSequenceFeedback>
     {
         public const string k_RosMessageName = "moveit_msgs/MoveGroupSequenceActionFeedback";
         public override string RosMessageName => k_RosMessageName;

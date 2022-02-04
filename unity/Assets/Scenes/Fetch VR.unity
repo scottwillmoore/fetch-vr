@@ -323,7 +323,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 182163183}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 174d6a0180819c249b1e2d8c6a6cf85e, type: 3}
+  m_Script: {fileID: 11500000, guid: d541b5b52dfa6684cba094ea30bb3471, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   transformTopic: /tf
@@ -337,7 +337,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 182163183}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0eb108fdc5013d0489addfb4f2412727, type: 3}
+  m_Script: {fileID: 11500000, guid: 67eeebe85eb95c44ea6f100a3d7fa592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   boxTopic: /segmentation/bounding_boxes
@@ -381,7 +381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3157144479626121390, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -1
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3157144479626121390, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_LocalRotation.x
@@ -389,7 +389,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3157144479626121390, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.00000043711393
+      value: 0.0000005245367
       objectReference: {fileID: 0}
     - target: {fileID: 3157144479626121390, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_LocalRotation.z
@@ -406,6 +406,18 @@ PrefabInstance:
     - target: {fileID: 3157144479626121390, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5934978556429459781, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
+      propertyPath: m_ParentAnchorRotation.x
+      value: 0.70710677
+      objectReference: {fileID: 0}
+    - target: {fileID: 7326275224344492753, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
+      propertyPath: m_Name
+      value: Fetch Plan
+      objectReference: {fileID: 0}
+    - target: {fileID: 7350583116984965067, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
+      propertyPath: m_ParentAnchorRotation.x
+      value: 0.70710677
       objectReference: {fileID: 0}
     - target: {fileID: 8702181149310035113, guid: 96a734d5e273fd14c9ef815429e238b7, type: 3}
       propertyPath: m_RosIPAddress
@@ -792,26 +804,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 234429158}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9202b99284611a468633bf137f077a9, type: 3}
+  m_Script: {fileID: 11500000, guid: fe787641ef30ab04b96f83efa766fbfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   frameId: base_link
   frameReference: {fileID: 8005223196799451891}
-  poseTopicName: /unity/right_controller
-  poseTopicFrequency: 10
-  motionPlanServiceName: /plan_kinematic_path
-  motionPlanButton: 1
-  motionPlanMarker: {fileID: 168448556}
+  planTrajectoryActionName: /move_group
+  planTrajectoryButton: 1
+  executeTrajectoryActionName: /execute_trajectory
+  executeTrajectoryButton: 2
   groupName: arm
   linkName: gripper_link
   planningAttempts: 1
-  allowedPlanningTime: 1
+  allowedPlanningTime: 5
   maxVelocityScalingFactor: 1
   maxAccelerationScalingFactor: 1
   positionTolerance: 0.001
   orientationTolerance: 0.001
-  executeTrajectoryActionName: 
-  executeTrajectoryButton: 2
 --- !u!1001 &348631731
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1169,40 +1178,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4593680705043960, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
   m_PrefabInstance: {fileID: 1190321209}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1713619113 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 112276, guid: d9809c5e8418bb047bf2c8ba1d1a2cec, type: 3}
-  m_PrefabInstance: {fileID: 2095386084}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1713619114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1713619113}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9202b99284611a468633bf137f077a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  frameId: base_link
-  frameReference: {fileID: 0}
-  poseTopicName: /unity/left_controller
-  poseTopicFrequency: 10
-  motionPlanServiceName: 
-  motionPlanButton: 0
-  motionPlanMarker: {fileID: 0}
-  groupName: 
-  linkName: 
-  planningAttempts: 1
-  allowedPlanningTime: 5
-  maxVelocityScalingFactor: 1
-  maxAccelerationScalingFactor: 1
-  positionTolerance: 0.001
-  orientationTolerance: 0.001
-  executeTrajectoryActionName: 
-  executeTrajectoryButton: 0
 --- !u!1 &1850444877 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7326275224344492753, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
@@ -1217,11 +1192,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1850444877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 705c773838673344d99d6b2386378e66, type: 3}
+  m_Script: {fileID: 11500000, guid: d541b5b52dfa6684cba094ea30bb3471, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tintColor: {r: 1, g: 0, b: 0, a: 0.6392157}
-  tintStrength: 0.33
+  transformTopic: /tf
+  frameId: base_link
 --- !u!114 &1850444879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1231,7 +1206,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1850444877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 004adaadd851e2644955aaf1fa323801, type: 3}
+  m_Script: {fileID: 11500000, guid: dea308a70955bf845a3428f247e66411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   displayPlannedPathTopic: /move_group/display_planned_path
@@ -1244,11 +1219,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1850444877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 174d6a0180819c249b1e2d8c6a6cf85e, type: 3}
+  m_Script: {fileID: 11500000, guid: 373c8118f280a0146b57ccef3e1cf78d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transformTopic: /tf
-  frameId: base_link
+  tintColor: {r: 0, g: 0.76862746, b: 0.2509804, a: 0.5019608}
+  tintStrength: 0.2
 --- !u!1001 &2095386084
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1372,6 +1347,20 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7326275224344492753, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
   m_PrefabInstance: {fileID: 4546062997055347915}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6537806870055511579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6537806870055511578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d541b5b52dfa6684cba094ea30bb3471, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transformTopic: /tf
+  frameId: base_link
 --- !u!114 &6537806870055511580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1381,21 +1370,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6537806870055511578}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 174d6a0180819c249b1e2d8c6a6cf85e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  transformTopic: /tf
-  frameId: base_link
---- !u!114 &6537806870055511581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6537806870055511578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9c5a0eb853d9ec42b4110ee312e4d0c, type: 3}
+  m_Script: {fileID: 11500000, guid: 889f21a59add98f48b58e1c152501d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   jointStatesTopic: /joint_states

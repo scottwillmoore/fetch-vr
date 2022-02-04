@@ -5,7 +5,7 @@ using RosMessageTypes.Actionlib;
 
 namespace RosMessageTypes.Moveit
 {
-    public class PickupActionResult : ActionResult<PickupResult>
+    public class PickupActionResult : Unity.Robotics.ROSTCPConnector.MessageGeneration.ActionResult<PickupResult>
     {
         public const string k_RosMessageName = "moveit_msgs/PickupActionResult";
         public override string RosMessageName => k_RosMessageName;
