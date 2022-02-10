@@ -3,6 +3,7 @@ using RosMessageTypes.Moveit;
 using RosMessageTypes.Shape;
 using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using Unity.Robotics.ROSTCPConnector;
+using UnityEngine.InputSystem;
 using UnityEngine;
 
 public class MoveGroupController : MonoBehaviour
@@ -23,12 +24,12 @@ public class MoveGroupController : MonoBehaviour
     [SerializeField] private GameObject frameReference;
 
     [SerializeField] private string planTrajectoryActionName = "/move_group";
-    [SerializeField] private OVRInput.RawButton planTrajectoryButton;
+    [SerializeField] private InputAction planTrajectoryAction;
 
     private ROSActionClient<MoveGroupGoal, MoveGroupResult, MoveGroupFeedback> planTrajectoryActionClient;
 
     [SerializeField] private string executeTrajectoryActionName = "/execute_trajectory";
-    [SerializeField] private OVRInput.RawButton executeTrajectoryButton;
+    [SerializeField] private InputAction executeTrajectoryAction;
 
     private ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback> executeTrajectoryActionClient;
 
@@ -48,6 +49,24 @@ public class MoveGroupController : MonoBehaviour
 
     private RobotTrajectoryMsg latestTrajectory;
 
+    public void Awake()
+    {
+        planTrajectoryAction.performed += (inputAction) => PlanTrajectory();
+        executeTrajectoryAction.performed += (inputAction) => ExecuteTrajectory();
+    }
+
+    public void OnEnable()
+    {
+        planTrajectoryAction.Enable();
+        executeTrajectoryAction.Enable();
+    }
+
+    public void OnDisable()
+    {
+        planTrajectoryAction.Disable();
+        executeTrajectoryAction.Disable();
+    }
+
     public void Start()
     {
         rosConnection = ROSConnection.GetOrCreateInstance();
@@ -57,23 +76,9 @@ public class MoveGroupController : MonoBehaviour
         executeTrajectoryActionClient = new ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback>(executeTrajectoryActionName);
     }
 
-    public void Update()
-    {
-        if (OVRInput.GetDown(planTrajectoryButton))
-        {
-            PlanTrajectory();
-        }
-
-        if (OVRInput.GetDown(executeTrajectoryButton))
-        {
-            ExecuteTrajectory();
-        }
-
-    }
-
     private void PlanTrajectory()
     {
-
+        Debug.Log("Plan Trajectory");
         var errorPrefix = "Cannot plan trajectory: ";
 
         switch (state)
@@ -119,6 +124,7 @@ public class MoveGroupController : MonoBehaviour
 
     private void ExecuteTrajectory()
     {
+        Debug.Log("Execute Trajectory");
         var errorPrefix = "Cannot execute trajectory: ";
 
         switch (state)
