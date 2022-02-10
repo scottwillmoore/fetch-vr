@@ -46,6 +46,7 @@ catkin_install_python(
 		scripts/segmentation.py
 		scripts/lib_cloud_conversion_between_Open3D_and_ROS.py
 		scripts/transform_point_cloud.py
+		scripts/aruco_init_moveit.py
 	DESTINATION
 		${CATKIN_PACKAGE_BIN_DESTINATION}
 )
