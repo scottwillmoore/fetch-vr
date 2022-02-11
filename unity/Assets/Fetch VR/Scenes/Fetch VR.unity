@@ -1300,8 +1300,8 @@ MonoBehaviour:
   maxAccelerationScalingFactor: 1
   positionTolerance: 0.001
   orientationTolerance: 0.001
-  feedbackComponent: {fileID: 0}
   jointTolerance: 0.0001
+  feedbackComponent: {fileID: 0}
 --- !u!4 &234429160 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 488160, guid: d9809c5e8418bb047bf2c8ba1d1a2cec, type: 3}
@@ -3087,7 +3087,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: 0170e08e-2876-499d-8f7a-678280800979
-      m_Path: <Keyboard>/space
+      m_Path: <XRController>{RightHand}/triggerButton
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -3103,6 +3103,7 @@ MonoBehaviour:
   maxAccelerationScalingFactor: 1
   positionTolerance: 0.001
   orientationTolerance: 0.001
+  jointTolerance: 0.0001
   feedbackComponent: {fileID: 1767593087}
 --- !u!114 &2031729883
 MonoBehaviour:
@@ -3118,7 +3119,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   frameId: base_link
   posePublisherName: /right_controller
-  jointTolerance: 0.0001
 --- !u!1001 &2095386084
 PrefabInstance:
   m_ObjectHideFlags: 0
