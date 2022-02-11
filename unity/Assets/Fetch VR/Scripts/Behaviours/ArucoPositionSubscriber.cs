@@ -33,7 +33,7 @@ public class ArucoPositionSubscriber : MonoBehaviour
         gameObject.transform.localPosition = zeroPosition;
         gameObject.transform.localRotation = zeroOrientation;
         gameObject.transform.localScale = new Vector3 (80/modelSize[0], 180/modelSize[1], 77/modelSize[2]);
-        gameObject.transform.Translate(0, 0, -0.8f);
+        gameObject.transform.Translate(0, 0, -0.77f);
 
         // get coordinates from message for aruco marker
         var position = message.markers[0].pose.pose.position.From<FLU>();

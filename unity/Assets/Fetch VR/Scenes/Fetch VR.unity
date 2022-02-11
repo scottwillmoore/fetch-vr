@@ -800,6 +800,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 649021784}
     m_Modifications:
+    - target: {fileID: 8702181149310035113, guid: 96a734d5e273fd14c9ef815429e238b7, type: 3}
+      propertyPath: m_RosIPAddress
+      value: 160.69.69.80
+      objectReference: {fileID: 0}
     - target: {fileID: 3157144479626121390, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -844,10 +848,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3916033154846048971, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: dc554375de11cc54bb2f2bcd6e9d74a8, type: 2}
     - target: {fileID: 5934978556429459781, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_ParentAnchorRotation.x
       value: 0.70710677
       objectReference: {fileID: 0}
+    - target: {fileID: 7117833529331193721, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 32f0113ed78b3d64787aeefb1a16965f, type: 2}
     - target: {fileID: 7326275224344492753, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_Name
       value: Fetch Preview
@@ -859,10 +871,6 @@ PrefabInstance:
     - target: {fileID: 7350583116984965067, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_ParentAnchorRotation.x
       value: 0.70710677
-      objectReference: {fileID: 0}
-    - target: {fileID: 8702181149310035113, guid: 96a734d5e273fd14c9ef815429e238b7, type: 3}
-      propertyPath: m_RosIPAddress
-      value: 160.69.69.80
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
@@ -1269,6 +1277,15 @@ MonoBehaviour:
     m_Name: Execute Trajectory
     m_Type: 0
     m_ExpectedControlType: 
+    m_Id: b0263921-3f66-43bc-a957-2bbfd00da8c5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  toggleGripperAction:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
     m_Id: 841bdf83-f5cf-44dc-81ac-8c02c995572e
     m_Processors: 
     m_Interactions: 
@@ -1276,6 +1293,7 @@ MonoBehaviour:
     m_Flags: 0
   groupName: arm
   linkName: gripper_link
+  gripperGroupName: 
   planningAttempts: 1
   allowedPlanningTime: 5
   maxVelocityScalingFactor: 1
@@ -1283,6 +1301,7 @@ MonoBehaviour:
   positionTolerance: 0.001
   orientationTolerance: 0.001
   feedbackComponent: {fileID: 0}
+  jointTolerance: 0.0001
 --- !u!4 &234429160 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 488160, guid: d9809c5e8418bb047bf2c8ba1d1a2cec, type: 3}
@@ -2627,6 +2646,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 694539798}
     m_Modifications:
+    - target: {fileID: 1149913561577473562, guid: 0b020303ec0cdd14684d8b43c2c01ab6, type: 3}
+      propertyPath: m_ParentAnchorPosition.x
+      value: -0.015425026
+      objectReference: {fileID: 0}
+    - target: {fileID: 1149913562078260428, guid: 0b020303ec0cdd14684d8b43c2c01ab6, type: 3}
+      propertyPath: m_ParentAnchorPosition.x
+      value: 0.015424997
+      objectReference: {fileID: 0}
     - target: {fileID: 7393693487051675365, guid: 0b020303ec0cdd14684d8b43c2c01ab6, type: 3}
       propertyPath: m_Name
       value: Gripper
@@ -3050,8 +3077,26 @@ MonoBehaviour:
       m_Action: Execute Trajectory
       m_Flags: 0
     m_Flags: 0
+  toggleGripperAction:
+    m_Name: Toggle Gripper
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 0307e636-0892-4765-8ac3-695085210234
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 0170e08e-2876-499d-8f7a-678280800979
+      m_Path: <Keyboard>/space
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Toggle Gripper
+      m_Flags: 0
+    m_Flags: 0
   groupName: arm
   linkName: gripper_link
+  gripperGroupName: gripper
   planningAttempts: 1
   allowedPlanningTime: 5
   maxVelocityScalingFactor: 1
@@ -3073,6 +3118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   frameId: base_link
   posePublisherName: /right_controller
+  jointTolerance: 0.0001
 --- !u!1001 &2095386084
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3278,6 +3324,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 123591097}
     m_Modifications:
+    - target: {fileID: 1149913561577473562, guid: 0b020303ec0cdd14684d8b43c2c01ab6, type: 3}
+      propertyPath: m_ParentAnchorPosition.x
+      value: -0.015425026
+      objectReference: {fileID: 0}
+    - target: {fileID: 1149913562078260428, guid: 0b020303ec0cdd14684d8b43c2c01ab6, type: 3}
+      propertyPath: m_ParentAnchorPosition.x
+      value: 0.015424997
+      objectReference: {fileID: 0}
     - target: {fileID: 7393693487051675365, guid: 0b020303ec0cdd14684d8b43c2c01ab6, type: 3}
       propertyPath: m_Name
       value: Gripper
@@ -3379,6 +3433,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3916033154846048971, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: dc554375de11cc54bb2f2bcd6e9d74a8, type: 2}
+    - target: {fileID: 7117833529331193721, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 32f0113ed78b3d64787aeefb1a16965f, type: 2}
     - target: {fileID: 7326275224344492753, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
       propertyPath: m_Name
       value: Fetch
