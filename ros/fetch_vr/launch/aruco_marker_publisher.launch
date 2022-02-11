@@ -1,0 +1,16 @@
+<launch>
+  <node name="aruco_marker_publisher" pkg="aruco_ros" type="marker_publisher">
+    <param name="camera_frame" value="head_camera_rgb_optical_frame" />
+    <param name="image_is_rectified" value="true" />
+    <param name="marker_size" value="0.1" />
+    <param name="reference_frame" value="base_link" />
+
+    <remap from="/camera_info" to="/head_camera/rgb/camera_info" />
+    <remap from="/image" to="/head_camera/rgb/image_rect_color" />
+  </node>
+
+  <node name="aruco_marker_transform_publisher" pkg="fetch_vr" type="aruco_marker_transform_publisher.py">
+    <param name="marker_id" value="200" />
+    <param name="marker_rate" value="10" />
+  </node>
+</launch>

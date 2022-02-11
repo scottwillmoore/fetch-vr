@@ -1,0 +1,6 @@
+<launch>
+    <node name="unity_tcp_endpoint" pkg="ros_tcp_endpoint" type="default_server_endpoint.py">
+        <param name="tcp_ip" value="0.0.0.0" />
+        <param name="tcp_port" value="10000" />
+    </node>
+</launch>
