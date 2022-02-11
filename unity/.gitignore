@@ -29,6 +29,7 @@
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+/[Aa]ssets/msgbrowser_settings.asset*
 /[Bb]uild/
 /[Bb]uilds/
 /[Ll]ibrary/

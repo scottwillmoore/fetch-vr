@@ -10588,7 +10588,7 @@ PrefabInstance:
     - target: {fileID: 6017992964545987212, guid: 5c4276fd726005f4d93facc50dd42fef, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 4300000, guid: dc554375de11cc54bb2f2bcd6e9d74a8, type: 2}
     - target: {fileID: 6351171989985855737, guid: 5c4276fd726005f4d93facc50dd42fef, type: 3}
       propertyPath: m_Name
       value: r_gripper_finger_link
@@ -10696,7 +10696,7 @@ PrefabInstance:
     - target: {fileID: 1328708857356882705, guid: cac4acc690f0cb94ba463c16e8da61c6, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 4300000, guid: 32f0113ed78b3d64787aeefb1a16965f, type: 2}
     - target: {fileID: 6116357337957527324, guid: cac4acc690f0cb94ba463c16e8da61c6, type: 3}
       propertyPath: m_Name
       value: l_gripper_finger_link

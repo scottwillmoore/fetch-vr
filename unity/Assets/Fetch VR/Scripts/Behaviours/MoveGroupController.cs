@@ -4,6 +4,7 @@ using RosMessageTypes.Shape;
 using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using Unity.Robotics.ROSTCPConnector;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class MoveGroupController : MonoBehaviour
@@ -20,8 +21,9 @@ public class MoveGroupController : MonoBehaviour
     private ROSConnection rosConnection;
     private ROSTime rosTime;
 
+    private TFSystem tfSystem;
+
     [SerializeField] private string frameId;
-    [SerializeField] private GameObject frameReference;
 
     [SerializeField] private string planTrajectoryActionName = "/move_group";
     [SerializeField] private InputAction planTrajectoryAction;
@@ -44,6 +46,8 @@ public class MoveGroupController : MonoBehaviour
 
     [SerializeField] private double positionTolerance = 1e-3;
     [SerializeField] private double orientationTolerance = 1e-3;
+
+    [SerializeField] private Text feedbackComponent;
 
     private State state;
 
@@ -72,6 +76,8 @@ public class MoveGroupController : MonoBehaviour
         rosConnection = ROSConnection.GetOrCreateInstance();
         rosTime = ROSTime.GetOrCreateInstance();
 
+        tfSystem = TFSystem.GetOrCreateInstance();
+
         planTrajectoryActionClient = new ROSActionClient<MoveGroupGoal, MoveGroupResult, MoveGroupFeedback>(planTrajectoryActionName);
         executeTrajectoryActionClient = new ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback>(executeTrajectoryActionName);
     }
@@ -87,6 +93,7 @@ public class MoveGroupController : MonoBehaviour
             case State.HasFailedPlan:
             case State.HasSuccessfulPlan:
                 state = State.WaitingForPlan;
+                SetFeedback("Attempting to plan trajectory...");
 
                 var currentPose = GetCurrentPose();
                 var goal = GetPlanGoal(currentPose);
@@ -100,24 +107,24 @@ public class MoveGroupController : MonoBehaviour
                         case ResultState.Recalled:
                         case ResultState.Rejected:
                             state = State.HasFailedPlan;
-                            Debug.LogError("Has failed plan!");
+                            SetFeedback("Plan has failed!");
                             break;
 
                         case ResultState.Succeeded:
                             state = State.HasSuccessfulPlan;
                             latestTrajectory = result.planned_trajectory;
-                            Debug.Log("Has successful plan!");
+                            SetFeedback("Plan has succeeded!");
                             break;
                     }
                 });
                 break;
 
             case State.WaitingForPlan:
-                Debug.LogError(errorPrefix + "Waiting for the plan to be confirmed.");
+                SetFeedback(errorPrefix + "Waiting for plan to be confirmed.");
                 break;
 
             case State.ExecutingPlan:
-                Debug.LogError(errorPrefix + "Execution in progress.");
+                SetFeedback(errorPrefix + "Execution in progress.");
                 break;
         }
     }
@@ -130,19 +137,20 @@ public class MoveGroupController : MonoBehaviour
         switch (state)
         {
             case State.HasNoPlan:
-                Debug.LogError(errorPrefix + "There is no plan.");
+                SetFeedback(errorPrefix + "There is no plan.");
                 break;
 
             case State.WaitingForPlan:
-                Debug.LogError(errorPrefix + "Waiting for the plan to be confirmed.");
+                SetFeedback(errorPrefix + "Waiting for the plan to be confirmed.");
                 break;
 
             case State.HasFailedPlan:
-                Debug.LogError(errorPrefix + "The plan cannot be achieved.");
+                SetFeedback(errorPrefix + "The plan cannot be achieved.");
                 break;
 
             case State.HasSuccessfulPlan:
                 state = State.ExecutingPlan;
+                SetFeedback("Attempting to execute trajectory...");
 
                 var goal = new ExecuteTrajectoryGoal();
                 goal.trajectory = latestTrajectory;
@@ -157,35 +165,36 @@ public class MoveGroupController : MonoBehaviour
                         case ResultState.Recalled:
                         case ResultState.Rejected:
                             state = State.HasNoPlan;
-                            Debug.LogError("Failed execution!");
+                            SetFeedback("Execution has failed!");
                             break;
 
                         case ResultState.Succeeded:
                             state = State.HasNoPlan;
-                            Debug.Log("Successful execution!");
+                            SetFeedback("Execution has succeeded!");
                             break;
                     }
                 });
                 break;
 
             case State.ExecutingPlan:
-                Debug.LogError(errorPrefix + "Execution in progress.");
+                SetFeedback(errorPrefix + "Execution in progress.");
                 break;
         }
     }
 
     private PoseStampedMsg GetCurrentPose()
     {
-        var latestTime = rosTime.Now();
+        var referenceObject = tfSystem.GetTransformObject(frameId);
 
-        var relativePosition = gameObject.transform.position - frameReference.transform.position;
-        var relativeRotation = gameObject.transform.rotation * Quaternion.Inverse(frameReference.transform.rotation);
+        var relativePosition = referenceObject.transform.InverseTransformPoint(gameObject.transform.position);
+        var relativeRotation = referenceObject.transform.InverseTransformRotation(gameObject.transform.rotation);
 
         var currentPose = new PoseStampedMsg();
+        currentPose.header.stamp = rosTime.Now();
         currentPose.header.frame_id = frameId;
-        currentPose.header.stamp = latestTime;
-        currentPose.pose.orientation = relativeRotation.To<FLU>();
+
         currentPose.pose.position = relativePosition.To<FLU>();
+        currentPose.pose.orientation = relativeRotation.To<FLU>();
 
         return currentPose;
     }
@@ -276,6 +285,11 @@ public class MoveGroupController : MonoBehaviour
         moveGroupGoal.planning_options = planningOptions;
 
         return moveGroupGoal;
+    }
+
+    private void SetFeedback(string feedback)
+    {
+        feedbackComponent.text = feedback;
     }
 }
 

@@ -1,4 +1,5 @@
 using RosMessageTypes.Moveit;
+using RosMessageTypes.Sensor;
 using RosMessageTypes.Trajectory;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ public class JointTrajectorySubscriber : MonoBehaviour
 
     private Dictionary<string, ArticulationBody> namedArticulationBodies;
 
+    private JointStateMsg jointState;
     private JointTrajectoryMsg jointTrajectory;
 
     private double animationDuration;
@@ -38,7 +40,7 @@ public class JointTrajectorySubscriber : MonoBehaviour
 
     public void Update()
     {
-        if (jointTrajectory == null)
+        if (jointState == null || jointTrajectory == null)
         {
             return;
         }
@@ -61,6 +63,20 @@ public class JointTrajectorySubscriber : MonoBehaviour
             }
         }
 
+        // First, apply the initial joint states
+        for (var i = 0; i < jointState.name.Length; i++)
+        {
+            var name = jointState.name[i];
+            var position = jointState.position[i];
+
+            ArticulationBody articulationBody;
+            if (namedArticulationBodies.TryGetValue(name, out articulationBody))
+            {
+                articulationBody.jointPosition = new ArticulationReducedSpace((float)position);
+            }
+        }
+
+        // Second, apply the current joint trajectory states
         for (var i = 0; i < jointTrajectory.joint_names.Length; i++)
         {
             var name = jointTrajectory.joint_names[i];
@@ -74,9 +90,10 @@ public class JointTrajectorySubscriber : MonoBehaviour
 
     private void DisplayPlannedPathCallback(DisplayTrajectoryMsg displayTrajectory)
     {
+        jointState = displayTrajectory.trajectory_start.joint_state;
+
         Debug.Assert(displayTrajectory.trajectory.Length > 0);
         var robotTrajectory = displayTrajectory.trajectory[0];
-
         jointTrajectory = robotTrajectory.joint_trajectory;
 
         Debug.Assert(displayTrajectory.trajectory.Length > 0);

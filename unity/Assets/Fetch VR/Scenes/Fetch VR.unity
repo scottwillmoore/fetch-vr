@@ -1254,23 +1254,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   frameId: base_link
-  frameReference: {fileID: 8005223196799451891}
   planTrajectoryActionName: /move_group
   planTrajectoryAction:
-    m_Name: 
+    m_Name: Plan Trajectory
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 
+    m_Id: 79d17063-3186-487f-8608-1213abff7147
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
   executeTrajectoryActionName: /execute_trajectory
   executeTrajectoryAction:
-    m_Name: 
+    m_Name: Execute Trajectory
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 
+    m_Id: 841bdf83-f5cf-44dc-81ac-8c02c995572e
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -1283,6 +1282,7 @@ MonoBehaviour:
   maxAccelerationScalingFactor: 1
   positionTolerance: 0.001
   orientationTolerance: 0.001
+  feedbackComponent: {fileID: 0}
 --- !u!4 &234429160 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 488160, guid: d9809c5e8418bb047bf2c8ba1d1a2cec, type: 3}
@@ -1848,7 +1848,7 @@ GameObject:
   - component: {fileID: 649021785}
   - component: {fileID: 649021786}
   m_Layer: 0
-  m_Name: Base
+  m_Name: Base Link
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1867,6 +1867,7 @@ Transform:
   m_Children:
   - {fileID: 4546062997055347916}
   - {fileID: 209218141}
+  - {fileID: 1864787683}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1879,10 +1880,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 649021783}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 146b2f4accc37374a9daa8b1bd399b47, type: 3}
+  m_Script: {fileID: 11500000, guid: d541b5b52dfa6684cba094ea30bb3471, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transformTopic: /tf
   frameId: base_link
 --- !u!114 &649021786
 MonoBehaviour:
@@ -2450,6 +2450,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1027274750}
     m_Modifications:
+    - target: {fileID: 2427215899403166770, guid: 34a694434569ac240b18eed0ee0ad068, type: 3}
+      propertyPath: frameId
+      value: marker_201
+      objectReference: {fileID: 0}
     - target: {fileID: 5728026746976872578, guid: 34a694434569ac240b18eed0ee0ad068, type: 3}
       propertyPath: frameId
       value: right_marker_frame
@@ -2506,7 +2510,8 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 1271d4f22ec4e344c8b7af681a9044d8, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5728026746976872578, guid: 34a694434569ac240b18eed0ee0ad068, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 34a694434569ac240b18eed0ee0ad068, type: 3}
 --- !u!1 &1027274749
 GameObject:
@@ -2577,7 +2582,6 @@ Transform:
   - {fileID: 502024566}
   - {fileID: 11817440}
   - {fileID: 2017460149}
-  - {fileID: 1864787683}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2780,7 +2784,7 @@ GameObject:
   - component: {fileID: 1767593088}
   - component: {fileID: 1767593087}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Feedback
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2802,8 +2806,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1000, y: 200}
+  m_AnchoredPosition: {x: 0, y: 300}
+  m_SizeDelta: {x: 1800, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1767593087
 MonoBehaviour:
@@ -2827,7 +2831,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 128
+    m_FontSize: 96
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1
@@ -2953,14 +2957,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864787680}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1512140792}
-  m_Father: {fileID: 1084603105}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 649021784}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &2017460148
 GameObject:
   m_ObjectHideFlags: 0
@@ -3010,7 +3014,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   frameId: base_link
-  frameReference: {fileID: 8005223196799451891}
   planTrajectoryActionName: /move_group
   planTrajectoryAction:
     m_Name: Plan Trajectory
@@ -3055,6 +3058,21 @@ MonoBehaviour:
   maxAccelerationScalingFactor: 1
   positionTolerance: 0.001
   orientationTolerance: 0.001
+  feedbackComponent: {fileID: 1767593087}
+--- !u!114 &2031729883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031729880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd24fba0e77a1ce4b82b2c240fe6cc3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  frameId: base_link
+  posePublisherName: /right_controller
 --- !u!1001 &2095386084
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3175,10 +3193,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Left Marker
       objectReference: {fileID: 0}
-    - target: {fileID: 5728026746976872581, guid: 34a694434569ac240b18eed0ee0ad068, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 34a694434569ac240b18eed0ee0ad068, type: 3}
 --- !u!1 &2147003912
@@ -3232,7 +3246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3394,8 +3408,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jointStatesTopic: /joint_states
---- !u!1 &8005223196799451891 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5768715436769861176, guid: 3001d66a2b8995f45a5f96cb64e3a72e, type: 3}
-  m_PrefabInstance: {fileID: 4546062997055347915}
-  m_PrefabAsset: {fileID: 0}
