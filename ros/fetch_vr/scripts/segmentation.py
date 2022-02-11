@@ -51,7 +51,7 @@ class Segmentation():
         pcd = rospc_to_o3dpc(pcd_ros)
         print('src:', pcd)
 
-        o3d.io.write_point_cloud("raw.pcd", pcd, print_progress=True)
+        # o3d.io.write_point_cloud("raw.pcd", pcd, print_progress=True)
 
         # Remove points further away than this threshold
         distance_threshold = 1.2
@@ -74,7 +74,7 @@ class Segmentation():
         plane_threshold = 10000
 
         for i in range(5):
-            plane_model, inliers = pcd.segment_plane(distance_threshold=0.005,ransac_n=3,num_iterations=50)
+            plane_model, inliers = pcd.segment_plane(distance_threshold=0.01,ransac_n=3,num_iterations=50)
             plane_cloud = pcd.select_by_index(inliers)         # plane
             plane_size = len(plane_cloud.points)
 
@@ -88,7 +88,7 @@ class Segmentation():
             print(f"Removed plane with {plane_size} points")
         
         # Clean up point cloud
-        #pcd, ind = pcd.remove_radius_outlier(nb_points=500, radius=0.04)
+        # pcd, ind = pcd.remove_radius_outlier(nb_points=500, radius=0.04)
         print('remove radius outliers:', pcd)
         
         if self.compute_bounding_boxes:

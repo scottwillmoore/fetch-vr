@@ -30,6 +30,10 @@ class ArucoInit():
 
         self.arm = moveit_commander.MoveGroupCommander("arm")
 
+        # self.gripper = moveit_commander.MoveGroupCommander("gripper")
+
+        self.init_arm = rospy.get_param("~initialise_arm_pose")
+
     def init_moveit(self, aruco_array):
         for marker in aruco_array.markers:
             if marker.id == 201:    # marker on the right
@@ -77,13 +81,18 @@ class ArucoInit():
 
         # print(self.arm.get_joints())
         # print((self.arm.get_current_joint_values()))
+        # print(self.gripper.get_joints())
+        # print(self.gripper.get_current_joint_values())
+        # self.gripper.go([0.0, 0.0], wait=True)
+        # self.gripper.stop()
 
         start_pose = [-0.6189127329589844, -0.5323255894348145, -0.7583010278918763, -1.276721908996582, -2.165996028260498, -1.2340825009521483, -2.4642663503967284]
 
         # self.arm.plan(start_pose)
 
-        self.arm.go(start_pose, wait=True)
-        self.arm.stop()
+        if self.init_arm:
+            self.arm.go(start_pose, wait=True)
+            self.arm.stop()
 
         self.scene.remove_world_object("temp_box")
 
