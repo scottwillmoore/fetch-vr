@@ -10,7 +10,8 @@
   </node>
 
   <node name="aruco_marker_transform_publisher" pkg="fetch_vr" type="aruco_marker_transform_publisher.py">
-    <param name="marker_id" value="200" />
-    <param name="marker_rate" value="10" />
+    <param name="failure_duration" value="10.0" />
+    <param name="marker_ids" value="200,201" />
+    <param name="publish_rate" value="10" />
   </node>
 </launch>

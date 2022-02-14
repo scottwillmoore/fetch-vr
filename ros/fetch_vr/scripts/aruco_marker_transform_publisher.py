@@ -3,20 +3,38 @@
 import aruco_msgs.msg
 import geometry_msgs.msg
 import rospy
+import sys
 import tf2_ros
 
 if __name__ == "__main__":
     try:
-        rospy.init_node("marker_transform_publisher")
+        rospy.init_node("aruco_marker_transform_publisher")
 
-        marker_id = rospy.get_param("~marker_id")
-        marker_rate = rospy.get_param("~marker_rate")
+        failure_duration = rospy.get_param("~failure_duration", 10.0)
+        assert isinstance(failure_duration, float)
+        rospy.loginfo("Failure duration: %f" % failure_duration)
+        
+        marker_ids = rospy.get_param("~marker_ids", "")
+        marker_ids = [int(marker_id) for marker_id in marker_ids.split(",")]
+        assert isinstance(marker_ids, list)
+        rospy.loginfo("Marker ids: [%s]" % ", ".join(str(marker_id) for marker_id in marker_ids))
 
-        marker_transform = None
-        while not marker_transform:
-            marker_array = rospy.wait_for_message("marker_publisher/markers", aruco_msgs.msg.MarkerArray)
+        publish_rate = rospy.get_param("~publish_rate", 10)
+        assert isinstance(publish_rate, int)
+        rospy.loginfo("Publish rate: %d" % publish_rate)
+
+        rospy.loginfo("Searching for markers...")
+
+        marker_transforms = {marker_id: None for marker_id in marker_ids}
+        while not all(marker_transforms.values()):
+            try:
+                marker_array = rospy.wait_for_message("aruco_marker_publisher/markers", aruco_msgs.msg.MarkerArray, timeout=failure_duration)
+            except rospy.ROSException:
+                rospy.logerr("Timed out!")
+                sys.exit()
+
             for marker in marker_array.markers:
-                if marker.id in marker_id:
+                if marker.id in marker_transforms.keys():
                     marker_transform = geometry_msgs.msg.TransformStamped()
                     marker_transform.header = marker.header
                     marker_transform.child_frame_id = "marker_" + str(marker.id)
@@ -24,11 +42,16 @@ if __name__ == "__main__":
                     marker_transform.transform.translation.y = marker.pose.pose.position.y
                     marker_transform.transform.translation.z = marker.pose.pose.position.z
                     marker_transform.transform.rotation = marker.pose.pose.orientation
+                    
+                    marker_transforms[marker.id] = marker_transform
 
-        rate = rospy.Rate(marker_rate)
+        rospy.loginfo("Found all makers!")
+
+        rate = rospy.Rate(publish_rate)
         transform_broadcaster = tf2_ros.TransformBroadcaster()
         while not rospy.is_shutdown():
-            transform_broadcaster.sendTransform(marker_transform)
+            for marker_transform in marker_transforms.values():
+                transform_broadcaster.sendTransform(marker_transform)
             rate.sleep()
 
     except rospy.ROSInterruptException:
