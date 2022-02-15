@@ -47,6 +47,7 @@ def main():
                 marker_transforms[marker.id] = transform
 
         for transform in marker_transforms.values():
+            transform.header.stamp = rospy.Time.now()
             transform_broadcaster.sendTransform(transform)
 
         rate.sleep()

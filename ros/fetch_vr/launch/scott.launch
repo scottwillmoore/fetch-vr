@@ -1,9 +1,5 @@
 <launch>
-  <include file="$(find fetch_vr)/launch/aruco_marker_publisher.launch" />
-
-  <node name="moveit_planning_scene_publisher" pkg="fetch_vr" type="moveit_planning_scene_publisher.py">
-    <param name="failure_duration" value="10.0" />
-    <param name="marker_frame" value="marker_200" />
-    <param name="reference_frame" value="base_link" />
-  </node>
+    <include file="$(find fetch_vr)/launch/marker_publisher.launch" />
+    <include file="$(find fetch_vr)/launch/move_group.launch" />
+    <include file="$(find fetch_vr)/launch/planning_scene.launch" />
 </launch>

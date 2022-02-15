@@ -37,24 +37,34 @@ def main():
 
     planning_scene = moveit_commander.PlanningSceneInterface(synchronous=True)
 
-    marker_x = -0.140
-    marker_y = -0.060
-    marker_z = -0.700
+    marker_depth = 0.120
+    marker_separation = 0.160
+    marker_width = 0.120
 
     table_depth = 0.800
     table_thickness = 0.030
     table_width = 1.800
 
+    world_x = -((marker_width / 2) + (marker_separation / 2))
+    world_y = -(marker_depth / 2)
+
+    table_x = world_x
+    table_y = world_y + (table_depth / 2)
+    table_z = -(table_thickness / 2)
+    
     table_pose = geometry_msgs.msg.PoseStamped()
     # table_pose.header.stamp = ...
     table_pose.header.frame_id = marker_frame
-    table_pose.position.x = marker_x + table_width / 2
-    table_pose.position.y = marker_y + table_depth / 2
-    table_pose.position.z = marker_z + table_thickness / 2
+    table_pose.pose.position.x = table_x
+    table_pose.pose.position.y = table_y
+    table_pose.pose.position.z = table_z
+    # table_pose.pose.orientation = ...
     
-    table_size = (table_depth, table_thickness, table_width)
+    table_size = (table_width, table_depth, table_thickness)
     
     planning_scene.add_box("table", table_pose, table_size)
+    
+    rospy.spin()
 
 if __name__ == "__main__":
     try:

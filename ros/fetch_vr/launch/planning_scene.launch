@@ -1,5 +1,3 @@
 <launch>
-    <node name="planning_scene" pkg="fetch_vr" type="planning_scene.py">
-        <param name="one_time" value="true" />
-    </node>
+    <node name="setup_planning_scene" pkg="fetch_vr" type="setup_planning_scene.py"></node>
 </launch>

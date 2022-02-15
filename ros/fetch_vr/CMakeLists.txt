@@ -3,7 +3,7 @@ project(fetch_vr)
 
 set(
 	MESSAGE_DEPENDENCIES
-	std_msgs
+		std_msgs
 )
 
 find_package(catkin
@@ -13,25 +13,25 @@ find_package(catkin
 		rospy
 )
 
-add_message_files(
-	FILES
-		ExampleMessage.msg
-)
+#add_message_files(
+#	FILES
+#		ExampleMessage.msg
+#)
 
-add_service_files(
-	FILES
-		ExampleService.srv
-)
+#add_service_files(
+#	FILES
+#		ExampleService.srv
+#)
 
 #add_action_files(
 #	FILES
 #		Example.action
 #)
 
-generate_messages(
-	DEPENDENCIES
-		${MESSAGE_DEPENDENCIES}
-)
+#generate_messages(
+#	DEPENDENCIES
+#		${MESSAGE_DEPENDENCIES}
+#)
 
 catkin_package(
 	CATKIN_DEPENDS
@@ -44,6 +44,7 @@ catkin_install_python(
 	PROGRAMS
 		scripts/marker_transform_publisher.py
 		scripts/planning_scene.py
+		scripts/setup_planning_scene.py
 		scripts/segment_point_cloud_publisher.py
 		scripts/transform_point_cloud_publisher.py
 	DESTINATION

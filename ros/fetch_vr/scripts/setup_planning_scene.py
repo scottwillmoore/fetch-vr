@@ -20,7 +20,7 @@ class ArucoInit():
         self.obstruction_back_offset = 0.40
 
         # self.pcd_subscriber = rospy.Subscriber(
-        #     '/aruco_marker_publisher/markers',
+        #     "/aruco_marker_publisher/markers",
         #     aruco_msgs.msg.MarkerArray,
         #     self.add_object_to_scene,
         #     queue_size=1
@@ -32,7 +32,7 @@ class ArucoInit():
 
         # self.gripper = moveit_commander.MoveGroupCommander("gripper")
 
-        self.init_arm = rospy.get_param("~initialise_arm_pose")
+        self.init_arm = rospy.get_param("~initialise_arm_pose", False)
 
     def init_moveit(self, aruco_array):
         for marker in aruco_array.markers:
@@ -67,6 +67,9 @@ class ArucoInit():
         back_obst_pose = copy.deepcopy(box_pose)
         back_obst_pose.pose.position.x = back_obst_pose.pose.position.x + self.obstruction_back_offset
         self.scene.add_box("back_obstruction", back_obst_pose, size=(0.01, 2, 4))
+        
+        print(dir(self.scene))
+        # self.scene.apply_planning_scene()
 
         # while not rospy.is_shutdown():
         #     attached_objects = self.scene.get_attached_objects([box_name])
@@ -77,7 +80,8 @@ class ArucoInit():
         #     if (is_attached) and (is_known):
         #         return
         
-        self.scene.add_box("temp_box", box_pose, size=(self.table_size[0], self.table_size[1], self.table_size[2] + 1))
+        # self.scene.add_box("temp_box", box_pose, size=(self.table_size[0], self.table_size[1], self.table_size[2] + 1))
+        # self.scene.remove_world_object("temp_box")
 
         # print(self.arm.get_joints())
         # print((self.arm.get_current_joint_values()))
@@ -86,35 +90,25 @@ class ArucoInit():
         # self.gripper.go([0.0, 0.0], wait=True)
         # self.gripper.stop()
 
-        start_pose = [-0.6189127329589844, -0.5323255894348145, -0.7583010278918763, -1.276721908996582, -2.165996028260498, -1.2340825009521483, -2.4642663503967284]
-
-        self.arm.plan(start_pose)
-
-        """
-        if self.init_arm:
-            self.arm.go(start_pose, wait=True)
-            self.arm.stop()
-        """
-
-        self.scene.remove_world_object("temp_box")
-
-    
-        
+        # start_pose = [-0.6189127329589844, -0.5323255894348145, -0.7583010278918763, -1.276721908996582, -2.165996028260498, -1.2340825009521483, -2.4642663503967284]
+        # self.arm.plan(start_pose)
+        # if self.init_arm:
+        #     self.arm.go(start_pose, wait=True)
+        #     self.arm.stop()
 
 #name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint]
 #position: [0.2015855312347412, 6.142337322235107, 0.19760264456272125, 0.092, -0.006723165512084961, 0.3862792734008789, -0.6189127329589844, -0.5323255894348145, -0.7583010278918763, -1.276721908996582, -2.165996028260498, -1.2340825009521483, -2.4642663503967284]
-#arm joints: ['shoulder_pan_joint', 'shoulder_lift_joint', 'upperarm_roll_joint', 'elbow_flex_joint', 'forearm_roll_joint', 'wrist_flex_joint', 'wrist_roll_joint']
+#arm joints: ["shoulder_pan_joint", "shoulder_lift_joint", "upperarm_roll_joint", "elbow_flex_joint", "forearm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
 
 #tucked joint states:[1.3211896058319093, 1.400107062084961, -0.19763138222480012, 1.7191431975860596, -1.511132454752942e-05, 1.660155971032715, 7.333383261561369e-05]
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
-        rospy.init_node('add_aruco_object_to_scene')
+        rospy.init_node("setup_planning_scene")
         moveit_commander.roscpp_initialize(sys.argv)
-        aruco_array = rospy.wait_for_message('/aruco_marker_publisher/markers', MarkerArray)
+        aruco_array = rospy.wait_for_message("/marker_publisher/markers", MarkerArray)
         
         box = ArucoInit()
-
         box.init_moveit(aruco_array)
 
         rospy.spin()
