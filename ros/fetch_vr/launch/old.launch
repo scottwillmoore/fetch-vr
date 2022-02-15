@@ -1,0 +1,49 @@
+<launch>
+
+    <arg name="transformed_cloud" default="base_frame_point_cloud" />
+    <arg name="compute_bounding_boxes" default="False" />
+
+    <arg name="source_cloud" default="/head_camera/depth_registered/points" />
+    <arg name="transform_from" default="head_camera_rgb_optical_frame" />
+    <arg name="transform_to" default="base_link" />
+
+    <arg name="markerSize" default="0.10" />
+    <arg name="ref_frame" default="base_link" />
+
+    <arg name="initialise_arm_pose" default="False" />
+
+    <node pkg="fetch_vr" type="segmentation.py" name="segmentation_publisher" output="screen">
+        <param name="input_cloud_topic" value="$(arg transformed_cloud)" />
+        <param name="compute_bounding_boxes" value="$(arg compute_bounding_boxes)" />
+    </node>
+
+    <node pkg="fetch_vr" type="transform_point_cloud.py" name="base_frame_cloud_publisher">
+        <param name="input_cloud_topic" value="$(arg source_cloud)" />
+        <param name="source_frame_topic" value="$(arg transform_from)" />
+        <param name="transform_frame_topic" value="$(arg transform_to)" />
+    </node>
+
+    <include file="$(find aruco_ros)/launch/marker_publisher.launch" pass_all_args="true" />
+
+    <param name="ROS_IP" value="0.0.0.0" />
+
+    <node pkg="ros_tcp_endpoint" type="default_server_endpoint.py" name="ros_tcp_endpoint" />
+
+    <include file="$(find fetch_moveit_config)/launch/move_group.launch" />
+
+    <node pkg="fetch_vr" type="aruco_init_moveit.py" name="add_aruco_object_to_scene" output="screen">
+        <param name="initialise_arm_pose" value="$(arg initialise_arm_pose)" />
+    </node>
+
+    <node name="marker_publisher" pkg="aruco_ros" type="marker_publisher">
+        <param name="camera_frame" value="head_camera_rgb_optical_frame" />
+        <param name="image_is_rectified" value="true" />
+        <param name="marker_size" value="0.1" />
+        <param name="reference_frame" value="base_link" />
+
+        <remap from="/camera_info" to="/head_camera/rgb/camera_info" />
+        <remap from="/image" to="/head_camera/rgb/image_rect_color" />
+    </node>
+
+    <node name="marker_transform_publisher" pkg="fetch_vr" type="marker_transform_publisher.py" output="screen" />
+</launch>

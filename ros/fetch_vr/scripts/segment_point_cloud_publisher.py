@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 from sklearn.utils import compute_class_weight
-import rospy
-import open3d as o3d
 import numpy as np
+import open3d as o3d
+import rospy
 import scipy
 import time
 
-from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import Point, Quaternion, Pose, Vector3
 from jsk_recognition_msgs.msg import BoundingBox, BoundingBoxArray
 from lib_cloud_conversion_between_Open3D_and_ROS import convertCloudFromRosToOpen3d, convertCloudFromOpen3dToRos
 from open3d_ros_helper import rospc_to_o3dpc, o3dpc_to_rospc
+from sensor_msgs.msg import PointCloud2
 
 class Segmentation():
 

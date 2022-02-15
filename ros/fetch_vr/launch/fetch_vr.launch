@@ -1,10 +1,7 @@
 <launch>
-    <include file="$(find fetch_vr)/launch/aruco_marker_publisher.launch" />
-
-    <!--
-    <include file="$(find fetch_vr)/launch/moveit_move_group.launch" />
-    <include file="$(find fetch_vr)/launch/moveit_planning_scene.launch" />
-    -->
-
-    <include file="$(find fetch_vr)/launch/unity_tcp_endpoint.launch" />
+    <include file="$(find fetch_vr)/launch/marker_publisher.launch" />
+    <include file="$(find fetch_vr)/launch/move_group.launch" />
+    <include file="$(find fetch_vr)/launch/planning_scene.launch" />
+    <include file="$(find fetch_vr)/launch/point_cloud_publisher.launch" />
+    <include file="$(find fetch_vr)/launch/tcp_endpoint.launch" />
 </launch>

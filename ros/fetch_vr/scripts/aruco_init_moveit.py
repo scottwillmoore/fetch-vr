@@ -88,11 +88,13 @@ class ArucoInit():
 
         start_pose = [-0.6189127329589844, -0.5323255894348145, -0.7583010278918763, -1.276721908996582, -2.165996028260498, -1.2340825009521483, -2.4642663503967284]
 
-        # self.arm.plan(start_pose)
+        self.arm.plan(start_pose)
 
+        """
         if self.init_arm:
             self.arm.go(start_pose, wait=True)
             self.arm.stop()
+        """
 
         self.scene.remove_world_object("temp_box")
 
