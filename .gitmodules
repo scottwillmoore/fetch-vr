@@ -1,24 +1,3 @@
-[submodule "fetch_msgs"]
-	branch = melodic-devel
-	path = ros/fetch_msgs
-	url = git@github.com:fetchrobotics/fetch_msgs.git
-[submodule "jsk_common_msgs"]
-	path = ros/jsk_common_msgs
-	url = git@github.com:jsk-ros-pkg/jsk_common_msgs.git
-[submodule "moveit_msgs"]
-	branch = melodic-devel
-	path = ros/moveit_msgs
-	url = git@github.com:ros-planning/moveit_msgs.git
-[submodule "pcl_msgs"]
-	path = ros/pcl_msgs
-	url = git@github.com:ros-perception/pcl_msgs.git
-[submodule "power_msgs"]
-	branch = melodic-devel
-	path = ros/power_msgs
-	url = git@github.com:fetchrobotics/power_msgs.git
 [submodule "ros_tcp_endpoint"]
 	path = ros/ros_tcp_endpoint
 	url = git@github.com:Unity-Technologies/ROS-TCP-Endpoint.git
-[submodule "ros/ros_numpy"]
-	path = ros/ros_numpy
-	url = git@github.com:eric-wieser/ros_numpy.git
