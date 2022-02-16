@@ -23,6 +23,6 @@ public class ImmovableArticulationBody : MonoBehaviour
 
     public void Update()
     {
-        rootArticulationBody.TeleportRoot(gameObject.transform.parent.position, gameObject.transform.parent.rotation);
+        rootArticulationBody.TeleportRoot(gameObject.transform.position, gameObject.transform.rotation);
     }
 }

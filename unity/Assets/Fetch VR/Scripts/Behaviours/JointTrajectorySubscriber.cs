@@ -21,6 +21,8 @@ public class JointTrajectorySubscriber : MonoBehaviour
     private double animationDuration;
     private double animationStartTime;
 
+    [SerializeField] private double animationPause = 1.0;
+
     public void Start()
     {
         rosConnection = ROSConnection.GetOrCreateInstance();
@@ -48,7 +50,7 @@ public class JointTrajectorySubscriber : MonoBehaviour
         var currentTime = Time.timeAsDouble;
         var elapsedTime = currentTime - animationStartTime;
 
-        var animationElapsedTime = elapsedTime % animationDuration;
+        var animationElapsedTime = elapsedTime % (animationDuration + animationPause);
 
         JointTrajectoryPointMsg currentPoint = jointTrajectory.points[0];
 

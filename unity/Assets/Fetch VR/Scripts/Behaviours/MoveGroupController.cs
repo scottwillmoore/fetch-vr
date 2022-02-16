@@ -18,28 +18,44 @@ public class MoveGroupController : MonoBehaviour
         ExecutingPlan,
     }
 
+    private enum GripperState
+    {
+        Open,
+        Closed,
+    }
+
     private ROSConnection rosConnection;
     private ROSTime rosTime;
 
     private TFSystem tfSystem;
 
+    [Header("Actions")]
+
+    [SerializeField] private InputAction planTrajectoryAction;
+    [SerializeField] private InputAction executeTrajectoryAction;
+    [SerializeField] private InputAction toggleGripperAction;
+
+    [Header("Feedbacks")]
+
+    [SerializeField] private TintMaterial gripperIndicator;
+    [SerializeField] private Text feedbackText;
+
+    [Header("Settings")]
+
     [SerializeField] private string frameId;
 
     [SerializeField] private string planTrajectoryActionName = "/move_group";
-    [SerializeField] private InputAction planTrajectoryAction;
 
     private ROSActionClient<MoveGroupGoal, MoveGroupResult, MoveGroupFeedback> planTrajectoryActionClient;
 
     [SerializeField] private string executeTrajectoryActionName = "/execute_trajectory";
-    [SerializeField] private InputAction executeTrajectoryAction;
 
     private ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback> executeTrajectoryActionClient;
 
-    [SerializeField] private InputAction toggleGripperAction;
-
-    [SerializeField] private string groupName;
-    [SerializeField] private string linkName;
+    [SerializeField] private string armGroupName;
     [SerializeField] private string gripperGroupName;
+
+    [SerializeField] private string targetLinkName;
 
     [SerializeField] private int planningAttempts = 1;
     [SerializeField] private double allowedPlanningTime = 5.0;
@@ -49,34 +65,10 @@ public class MoveGroupController : MonoBehaviour
 
     [SerializeField] private double positionTolerance = 1e-3;
     [SerializeField] private double orientationTolerance = 1e-3;
-    [SerializeField] private double jointTolerance = 1e-4;
-
-    [SerializeField] private Text feedbackComponent;
+    [SerializeField] private double jointTolerance = 1e-3;
 
     private State state;
-
     private RobotTrajectoryMsg latestTrajectory;
-
-    public void Awake()
-    {
-        planTrajectoryAction.performed += (inputAction) => PlanTrajectory();
-        executeTrajectoryAction.performed += (inputAction) => ExecuteTrajectory();
-        toggleGripperAction.performed += (inputAction) => ToggleGripper();
-    }
-
-    public void OnEnable()
-    {
-        planTrajectoryAction.Enable();
-        executeTrajectoryAction.Enable();
-        toggleGripperAction.Enable();
-    }
-
-    public void OnDisable()
-    {
-        planTrajectoryAction.Disable();
-        executeTrajectoryAction.Disable();
-        toggleGripperAction.Disable();
-    }
 
     public void Start()
     {
@@ -87,11 +79,20 @@ public class MoveGroupController : MonoBehaviour
 
         planTrajectoryActionClient = new ROSActionClient<MoveGroupGoal, MoveGroupResult, MoveGroupFeedback>(planTrajectoryActionName);
         executeTrajectoryActionClient = new ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback>(executeTrajectoryActionName);
+
+        planTrajectoryAction.Enable();
+        executeTrajectoryAction.Enable();
+        toggleGripperAction.Enable();
+
+        planTrajectoryAction.performed += (inputAction) => PlanTrajectory();
+        executeTrajectoryAction.performed += (inputAction) => ExecuteTrajectory();
+        toggleGripperAction.performed += (inputAction) => ToggleGripper();
+
+        gripperIndicator.gameObject.SetActive(false);
     }
 
     private void PlanTrajectory()
     {
-        Debug.Log("Plan Trajectory");
         var errorPrefix = "Cannot plan trajectory: ";
 
         switch (state)
@@ -100,10 +101,18 @@ public class MoveGroupController : MonoBehaviour
             case State.HasFailedPlan:
             case State.HasSuccessfulPlan:
                 state = State.WaitingForPlan;
-                SetFeedback("Attempting to plan trajectory...");
 
-                var currentPose = GetCurrentPose();
-                var goal = GetPlanGoal(currentPose);
+                feedbackText.text = "Attempting to plan trajectory...";
+
+                gripperIndicator.gameObject.SetActive(true);
+                gripperIndicator.transform.position = gameObject.transform.position;
+                gripperIndicator.transform.rotation = gameObject.transform.rotation;
+                var tintColor = Color.blue;
+                tintColor.a = 0.5f;
+                gripperIndicator.SetTintColor(tintColor);
+
+                var pose = GetCurrentPose();
+                var goal = GetPlanGoal(pose);
                 planTrajectoryActionClient.Send(goal, (resultState, result) =>
                 {
                     switch (resultState)
@@ -114,54 +123,67 @@ public class MoveGroupController : MonoBehaviour
                         case ResultState.Recalled:
                         case ResultState.Rejected:
                             state = State.HasFailedPlan;
-                            SetFeedback("Plan has failed!");
+
+                            feedbackText.text = "Plan has failed!";
+
+                            tintColor = Color.red;
+                            tintColor.a = 0.5f;
+                            gripperIndicator.SetTintColor(tintColor);
+
                             break;
 
                         case ResultState.Succeeded:
                             state = State.HasSuccessfulPlan;
                             latestTrajectory = result.planned_trajectory;
-                            SetFeedback("Plan has succeeded!");
+
+                            feedbackText.text = "Plan has succeeded!";
+
+                            tintColor = Color.green;
+                            tintColor.a = 0.5f;
+                            gripperIndicator.SetTintColor(tintColor);
+
                             break;
                     }
                 });
                 break;
 
             case State.WaitingForPlan:
-                SetFeedback(errorPrefix + "Waiting for plan to be confirmed.");
+                feedbackText.text = errorPrefix + "Waiting for plan to be confirmed.";
                 break;
 
             case State.ExecutingPlan:
-                SetFeedback(errorPrefix + "Execution in progress.");
+                feedbackText.text = errorPrefix + "Execution in progress.";
                 break;
         }
     }
 
     private void ExecuteTrajectory()
     {
-        Debug.Log("Execute Trajectory");
         var errorPrefix = "Cannot execute trajectory: ";
 
         switch (state)
         {
             case State.HasNoPlan:
-                SetFeedback(errorPrefix + "There is no plan.");
+                feedbackText.text = errorPrefix + "There is no plan.";
                 break;
 
             case State.WaitingForPlan:
-                SetFeedback(errorPrefix + "Waiting for the plan to be confirmed.");
+                feedbackText.text = errorPrefix + "Waiting for the plan to be confirmed.";
                 break;
 
             case State.HasFailedPlan:
-                SetFeedback(errorPrefix + "The plan cannot be achieved.");
+                feedbackText.text = errorPrefix + "The plan cannot be achieved.";
                 break;
 
             case State.HasSuccessfulPlan:
                 state = State.ExecutingPlan;
-                SetFeedback("Attempting to execute trajectory...");
+
+                feedbackText.text = "Attempting to execute trajectory...";
+
+                gripperIndicator.gameObject.SetActive(false);
 
                 var goal = new ExecuteTrajectoryGoal();
                 goal.trajectory = latestTrajectory;
-
                 executeTrajectoryActionClient.Send(goal, (resultState, result) =>
                 {
                     switch (resultState)
@@ -172,19 +194,67 @@ public class MoveGroupController : MonoBehaviour
                         case ResultState.Recalled:
                         case ResultState.Rejected:
                             state = State.HasNoPlan;
-                            SetFeedback("Execution has failed!");
+                            feedbackText.text = "Attempting to execute trajectory...";
                             break;
 
                         case ResultState.Succeeded:
                             state = State.HasNoPlan;
-                            SetFeedback("Execution has succeeded!");
+                            feedbackText.text = "Execution has succeeded!";
                             break;
                     }
                 });
                 break;
 
             case State.ExecutingPlan:
-                SetFeedback(errorPrefix + "Execution in progress.");
+                feedbackText.text = errorPrefix + "Execution in progress.";
+                break;
+        }
+    }
+
+    private void ToggleGripper()
+    {
+        Debug.Log("Toggle Gripper");
+        var errorPrefix = "Cannot plan trajectory: ";
+
+        switch (state)
+        {
+            case State.HasNoPlan:
+            case State.HasFailedPlan:
+            case State.HasSuccessfulPlan:
+                state = State.WaitingForPlan;
+
+                var fingersState = GetGripperState();
+                var goal = GetGripperPlanGoal(fingersState);
+
+                planTrajectoryActionClient.Send(goal, (resultState, result) =>
+                {
+                    switch (resultState)
+                    {
+                        case ResultState.Aborted:
+                        case ResultState.Lost:
+                        case ResultState.Preempted:
+                        case ResultState.Recalled:
+                        case ResultState.Rejected:
+                            state = State.HasFailedPlan;
+                            Debug.LogError("Has failed plan!");
+                            break;
+
+                        case ResultState.Succeeded:
+                            state = State.HasSuccessfulPlan;
+                            Debug.Log("Has successful plan!");
+                            latestTrajectory = result.planned_trajectory;
+                            ExecuteTrajectory();
+                            break;
+                    }
+                });
+                break;
+
+            case State.WaitingForPlan:
+                Debug.LogError(errorPrefix + "Waiting for the plan to be confirmed.");
+                break;
+
+            case State.ExecutingPlan:
+                Debug.LogError(errorPrefix + "Execution in progress.");
                 break;
         }
     }
@@ -206,6 +276,16 @@ public class MoveGroupController : MonoBehaviour
         return currentPose;
     }
 
+    private bool GetGripperState()
+    {
+        var gripperLink = gameObject.transform.Find("gripper_link").gameObject;
+        var leftFinger = gripperLink.transform.Find("l_gripper_finger_link").gameObject;
+        var fingersPosition = leftFinger.GetComponent<ArticulationBody>().jointPosition[0];
+        var fingersOpen = fingersPosition > 0.048f;
+
+        return fingersOpen;
+    }
+
     private MoveGroupGoal GetPlanGoal(PoseStampedMsg pose)
     {
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/WorkspaceParameters.html
@@ -223,7 +303,7 @@ public class MoveGroupController : MonoBehaviour
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/PositionConstraint.html
         var positionConstraint = new PositionConstraintMsg();
         positionConstraint.header = pose.header;
-        positionConstraint.link_name = linkName;
+        positionConstraint.link_name = targetLinkName;
         // constraint.target_point_offset = ...;
         positionConstraint.constraint_region.primitives = new SolidPrimitiveMsg[1];
         positionConstraint.constraint_region.primitives[0] = new SolidPrimitiveMsg();
@@ -239,7 +319,7 @@ public class MoveGroupController : MonoBehaviour
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/OrientationConstraint.html
         var orientationConstraint = new OrientationConstraintMsg();
         orientationConstraint.header = pose.header;
-        orientationConstraint.link_name = linkName;
+        orientationConstraint.link_name = targetLinkName;
         orientationConstraint.orientation = pose.pose.orientation;
         orientationConstraint.absolute_x_axis_tolerance = orientationTolerance;
         orientationConstraint.absolute_y_axis_tolerance = orientationTolerance;
@@ -267,7 +347,7 @@ public class MoveGroupController : MonoBehaviour
         // request.reference_trajectories = ...;
         // request.pipeline_id = ...;
         // request.planner_id = ...;
-        request.group_name = groupName;
+        request.group_name = armGroupName;
         request.num_planning_attempts = planningAttempts;
         request.allowed_planning_time = allowedPlanningTime;
         request.max_velocity_scaling_factor = maxVelocityScalingFactor;
@@ -296,69 +376,12 @@ public class MoveGroupController : MonoBehaviour
 
     private void SetFeedback(string feedback)
     {
-        feedbackComponent.text = feedback;
-    }
-        private void ToggleGripper()
-    {
-        Debug.Log("Plan Trajectory");
-        var errorPrefix = "Cannot plan trajectory: ";
-
-        switch (state)
-        {
-            case State.HasNoPlan:
-            case State.HasFailedPlan:
-            case State.HasSuccessfulPlan:
-                state = State.WaitingForPlan;
-
-                var fingersState = GetCurrentGripperPose();
-                var goal = GetGripperPlanGoal(fingersState);
-                planTrajectoryActionClient.Send(goal, (resultState, result) =>
-                {
-                    switch (resultState)
-                    {
-                        case ResultState.Aborted:
-                        case ResultState.Lost:
-                        case ResultState.Preempted:
-                        case ResultState.Recalled:
-                        case ResultState.Rejected:
-                            state = State.HasFailedPlan;
-                            Debug.LogError("Has failed plan!");
-                            break;
-
-                        case ResultState.Succeeded:
-                            state = State.HasSuccessfulPlan;
-                            latestTrajectory = result.planned_trajectory;
-                            Debug.Log("Has successful plan!");
-                            ExecuteTrajectory();
-                            break;
-                    }
-                });
-                break;
-
-            case State.WaitingForPlan:
-                Debug.LogError(errorPrefix + "Waiting for the plan to be confirmed.");
-                break;
-
-            case State.ExecutingPlan:
-                Debug.LogError(errorPrefix + "Execution in progress.");
-                break;
-        }
-    }
-    private bool GetCurrentGripperPose()
-    {
-        var gripperLink = gameObject.transform.Find("gripper_link").gameObject;
-        var leftFinger = gripperLink.transform.Find("l_gripper_finger_link").gameObject;
-        var fingersPosition = leftFinger.GetComponent<ArticulationBody>().jointPosition[0];
-        var fingersOpen = fingersPosition > 0.025f; 
-
-        return fingersOpen;
+        feedbackText.text = feedback;
     }
 
     private MoveGroupGoal GetGripperPlanGoal(bool fingersOpen)
     {
         var jointGoal = 0f;
-        Debug.Log(fingersOpen);
-        Debug.Log(!fingersOpen);
         if (!fingersOpen)
         {
             jointGoal = 0.5f;
@@ -380,33 +403,6 @@ public class MoveGroupController : MonoBehaviour
         workspaceParameters.max_corner.x = +1.0;
         workspaceParameters.max_corner.y = +2.0;
         workspaceParameters.max_corner.z = +1.0;
-
-        // http://docs.ros.org/en/api/moveit_msgs/html/msg/PositionConstraint.html
-        // var positionConstraint = new PositionConstraintMsg();
-        // positionConstraint.header = pose.header;
-        // positionConstraint.link_name = linkName;
-        // // constraint.target_point_offset = ...;
-        // positionConstraint.constraint_region.primitives = new SolidPrimitiveMsg[1];
-        // positionConstraint.constraint_region.primitives[0] = new SolidPrimitiveMsg();
-        // positionConstraint.constraint_region.primitives[0].type = SolidPrimitiveMsg.SPHERE;
-        // positionConstraint.constraint_region.primitives[0].dimensions = new double[1];
-        // positionConstraint.constraint_region.primitives[0].dimensions[SolidPrimitiveMsg.SPHERE_RADIUS] = positionTolerance;
-        // positionConstraint.constraint_region.primitive_poses = new PoseMsg[1];
-        // positionConstraint.constraint_region.primitive_poses[0] = new PoseMsg();
-        // positionConstraint.constraint_region.primitive_poses[0].position = pose.pose.position;
-        // // position_constraint.constraint_region.primitive_poses[0].orientation = ...;
-        // positionConstraint.weight = 1.0f;
-
-        // http://docs.ros.org/en/api/moveit_msgs/html/msg/OrientationConstraint.html
-        // var orientationConstraint = new OrientationConstraintMsg();
-        // orientationConstraint.header = pose.header;
-        // orientationConstraint.link_name = linkName;
-        // orientationConstraint.orientation = pose.pose.orientation;
-        // orientationConstraint.absolute_x_axis_tolerance = orientationTolerance;
-        // orientationConstraint.absolute_y_axis_tolerance = orientationTolerance;
-        // orientationConstraint.absolute_z_axis_tolerance = orientationTolerance;
-        // // orientation_constraint.parameterization = ...; 
-        // orientationConstraint.weight = 1.0f;
 
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/JointConstraint.html
         var leftJointConstraint = new JointConstraintMsg();

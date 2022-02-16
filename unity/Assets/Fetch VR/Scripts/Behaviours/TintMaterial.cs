@@ -4,14 +4,25 @@ using UnityEngine;
 public class TintMaterial : MonoBehaviour
 {
     [SerializeField] private Color tintColor;
-
     [SerializeField] private float tintStrength;
 
     private List<(Renderer renderer, Color oldColor)> initialRenderers;
 
     public void OnValidate()
     {
-        Tint();
+        UpdateTint();
+    }
+
+    public void SetTintColor(Color tintColor)
+    {
+        this.tintColor = tintColor;
+        UpdateTint();
+    }
+
+    public void SetTintStrength(float tintStrength)
+    {
+        this.tintStrength = tintStrength;
+        UpdateTint();
     }
 
     public void Start()
@@ -25,10 +36,10 @@ public class TintMaterial : MonoBehaviour
             initialRenderers.Add((renderer, oldColor));
         }
 
-        Tint();
+        UpdateTint();
     }
 
-    private void Tint()
+    private void UpdateTint()
     {
         if (initialRenderers == null)
         {
