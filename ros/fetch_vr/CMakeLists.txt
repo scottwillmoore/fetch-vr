@@ -47,6 +47,8 @@ catkin_install_python(
 		scripts/setup_planning_scene.py
 		scripts/segment_point_cloud_publisher.py
 		scripts/transform_point_cloud_publisher.py
+		scripts/camera_transform_publisher.py
+		scripts/assemble_clouds.py
 	DESTINATION
 		${CATKIN_PACKAGE_BIN_DESTINATION}
 )

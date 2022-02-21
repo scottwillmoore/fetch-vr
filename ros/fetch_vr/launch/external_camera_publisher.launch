@@ -1,0 +1,69 @@
+<launch>
+
+    <include file="$(find openni2_launch)/launch/openni2.launch" />
+
+    <!-- detect markers -->
+    <node name="external_camera_marker_publisher" pkg="aruco_ros" type="marker_publisher" output="screen">
+        <param name="camera_frame" value="camera_rgb_optical_frame" />
+        <param name="image_is_rectified" value="true" />
+        <param name="marker_size" value="0.1" />
+        <param name="reference_frame" value="camera_link" />
+
+        <remap from="/camera_info" to="/camera/rgb/camera_info" />
+        <remap from="/image" to="/camera/rgb/image_rect_color" />
+        <remap from="/marker_publisher/markers" to="/external_camera_marker_publisher/markers" />
+    </node>
+
+    <!-- get transform from marker to camera, connect tf trees -->
+    <node name="camera_transform_publisher" pkg="fetch_vr" type="camera_transform_publisher.py">
+        <param name="one_time" value="true" />
+    </node>
+
+    <!-- <node name="external_camera_marker_transform_publisher" pkg="fetch_vr" type="marker_transform_publisher.py">
+        <param name="one_time" value="true" />
+
+        <remap from="/marker_publisher/markers" to="/external_camera_marker_publisher/markers" />
+    </node> -->
+
+    <!-- transform and segment-->
+    <arg name="compute_bounding_boxes" default="False" />
+
+
+    <node name="marker_transform_external_camera_publisher" pkg="fetch_vr" type="transform_point_cloud_publisher.py">
+        <param name="input_cloud_topic" value="camera/depth_registered/points" />
+        <param name="source_frame_topic" value="camera_depth_optical_frame" />
+        <param name="transform_frame_topic" value="base_link" />
+
+        <remap from="base_frame_point_cloud" to="external/transformed_point_cloud" />
+    </node>
+
+    <!-- <include file="$(find fetch_vr)/launch/marker_publisher.launch" />
+
+    <node name="base_transform_external_camera_publisher" pkg="fetch_vr" type="transform_point_cloud_publisher.py">
+        <param name="input_cloud_topic" value="external/marker_transformed" />
+        <param name="source_frame_topic" value="marker_200" />
+        <param name="transform_frame_topic" value="base_link" />
+
+        <remap from="base_frame_point_cloud" to="external/base_transformed" /> 
+    </node> -->
+
+    <node name="external_camera_publisher" pkg="fetch_vr" type="segment_point_cloud_publisher.py">
+        <param name="input_cloud_topic" value="external/transformed_point_cloud" />
+        <param name="compute_bounding_boxes" type="bool" value="$(arg compute_bounding_boxes)" />
+
+        <!-- <remap from="segmentation/objects_point_cloud" to="segmentation/external" />  -->
+    </node>
+
+    <node type="point_cloud2_assembler" pkg="laser_assembler"
+        name="my_assembler">
+        <remap from="cloud" to="segmentation/objects_point_cloud"/>
+
+        <param name="max_clouds" type="int" value="10" />
+        <param name="fixed_frame" type="string" value="base_link" />
+    </node>
+
+    <node name="assemble_clouds" pkg="fetch_vr" type="assemble_clouds.py" output="screen"></node>
+
+
+
+</launch>
