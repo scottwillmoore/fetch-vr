@@ -62,8 +62,11 @@ class ExternalCamera():
                     transform.transform.rotation.y = inv_rot[1]
                     transform.transform.rotation.z = inv_rot[2]
                     transform.transform.rotation.w = inv_rot[3]
-
-            self.transform_broadcaster.sendTransform(transform)
+            try:
+                self.transform_broadcaster.sendTransform(transform)
+                print("Published transform from marker to external camera\n")
+            except:
+                print("Marker not yet detected by camera\n")
 
             # self.rate.sleep()
 

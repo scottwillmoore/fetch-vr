@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from sklearn.utils import compute_class_weight
 import numpy as np
 import open3d as o3d
 import rospy

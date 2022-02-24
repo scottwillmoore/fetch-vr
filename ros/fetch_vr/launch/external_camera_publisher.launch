@@ -19,42 +19,25 @@
         <param name="one_time" value="true" />
     </node>
 
-    <!-- <node name="external_camera_marker_transform_publisher" pkg="fetch_vr" type="marker_transform_publisher.py">
-        <param name="one_time" value="true" />
-
-        <remap from="/marker_publisher/markers" to="/external_camera_marker_publisher/markers" />
-    </node> -->
-
-    <!-- transform and segment-->
     <arg name="compute_bounding_boxes" default="False" />
 
 
     <node name="marker_transform_external_camera_publisher" pkg="fetch_vr" type="transform_point_cloud_publisher.py">
         <param name="input_cloud_topic" value="camera/depth_registered/points" />
-        <param name="source_frame_topic" value="camera_depth_optical_frame" />
+        <param name="source_frame_topic" value="camera_rgb_optical_frame" />
         <param name="transform_frame_topic" value="base_link" />
 
         <remap from="base_frame_point_cloud" to="external/transformed_point_cloud" />
     </node>
 
-    <!-- <include file="$(find fetch_vr)/launch/marker_publisher.launch" />
-
-    <node name="base_transform_external_camera_publisher" pkg="fetch_vr" type="transform_point_cloud_publisher.py">
-        <param name="input_cloud_topic" value="external/marker_transformed" />
-        <param name="source_frame_topic" value="marker_200" />
-        <param name="transform_frame_topic" value="base_link" />
-
-        <remap from="base_frame_point_cloud" to="external/base_transformed" /> 
-    </node> -->
-
     <node name="external_camera_publisher" pkg="fetch_vr" type="segment_point_cloud_publisher.py">
         <param name="input_cloud_topic" value="external/transformed_point_cloud" />
         <param name="compute_bounding_boxes" type="bool" value="$(arg compute_bounding_boxes)" />
 
-        <!-- <remap from="segmentation/objects_point_cloud" to="segmentation/external" />  -->
+        <remap from="segmentation/objects_point_cloud" to="segmentation/external" /> 
     </node>
 
-    <node type="point_cloud2_assembler" pkg="laser_assembler"
+    <!-- <node type="point_cloud2_assembler" pkg="laser_assembler"
         name="my_assembler">
         <remap from="cloud" to="segmentation/objects_point_cloud"/>
 
@@ -62,8 +45,12 @@
         <param name="fixed_frame" type="string" value="base_link" />
     </node>
 
-    <node name="assemble_clouds" pkg="fetch_vr" type="assemble_clouds.py" output="screen"></node>
+    <node name="assemble_clouds" pkg="fetch_vr" type="assemble_clouds.py" output="screen"></node> -->
 
+    <node name="point_clouds_assembler" pkg="fetch_vr" type="concatenate_clouds" output="screen">
+        <param name="fetch_cloud_topic" value="segmentation/objects_point_cloud" />
+        <param name="camera_cloud_topic" value="segmentation/external" />
+    </node>
 
 
 </launch>

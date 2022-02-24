@@ -11,6 +11,10 @@ find_package(catkin
 		${MESSAGE_DEPENDENCIES}
 		message_generation
 		rospy
+		roscpp
+		sensor_msgs
+		pcl_ros
+		message_filters
 )
 
 #add_message_files(
@@ -56,6 +60,16 @@ catkin_install_python(
 install(
 	FILES
 		launch/fetch_vr.launch
+		launch/external_camera_publisher.launch
 	DESTINATION
 		${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
+
+find_package(PCL REQUIRED)
+
+include_directories(${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
+
+link_directories(${PCL_LIBRARY_DIRS} ${PCL_LIBRARIES})
+
+add_executable(concatenate_clouds src/concatenate_clouds.cpp)
+target_link_libraries(concatenate_clouds ${catkin_LIBRARIES} ${PCL_LIBRARIES})
