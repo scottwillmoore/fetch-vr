@@ -24,38 +24,42 @@ public class MoveGroupController : MonoBehaviour
         Closed,
     }
 
-    private ROSConnection rosConnection;
-    private ROSTime rosTime;
-
-    private TFSystem tfSystem;
-
-    [Header("Actions")]
-
     [SerializeField] private InputAction planTrajectoryAction;
     [SerializeField] private InputAction executeTrajectoryAction;
     [SerializeField] private InputAction toggleGripperAction;
 
-    [Header("Feedbacks")]
+    [Space(8.0f)]
 
     [SerializeField] private TintMaterial gripperIndicator;
     [SerializeField] private Text feedbackText;
 
-    [Header("Settings")]
+    [Space(8.0f)]
 
-    [SerializeField] private string frameId;
+    [SerializeField] private string referenceFrameId;
 
     [SerializeField] private string planTrajectoryActionName = "/move_group";
-
-    private ROSActionClient<MoveGroupGoal, MoveGroupResult, MoveGroupFeedback> planTrajectoryActionClient;
-
     [SerializeField] private string executeTrajectoryActionName = "/execute_trajectory";
 
-    private ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback> executeTrajectoryActionClient;
+    [Space(8.0f)]
 
     [SerializeField] private string armGroupName;
-    [SerializeField] private string gripperGroupName;
-
     [SerializeField] private string targetLinkName;
+    [SerializeField] private Transform targetLinkTransform;
+
+    [Space(8.0f)]
+
+    [SerializeField] private bool useVisibilityConstraint;
+    [SerializeField] private double visibilityConstraintWeight;
+    [SerializeField] private string sensorFrameId;
+    [SerializeField] private Transform targetVisibilityTransform;
+
+    [Space(8.0f)]
+
+    [SerializeField] private string gripperGroupName;
+    [SerializeField] private ArticulationBody fingerArticulationBody;
+    [SerializeField] private float fingerJointThreshold;
+
+    [Space(8.0f)]
 
     [SerializeField] private int planningAttempts = 1;
     [SerializeField] private double allowedPlanningTime = 5.0;
@@ -66,6 +70,14 @@ public class MoveGroupController : MonoBehaviour
     [SerializeField] private double positionTolerance = 1e-3;
     [SerializeField] private double orientationTolerance = 1e-3;
     [SerializeField] private double jointTolerance = 1e-3;
+
+    private ROSConnection rosConnection;
+    private ROSTime rosTime;
+
+    private TFSystem tfSystem;
+
+    private ROSActionClient<MoveGroupGoal, MoveGroupResult, MoveGroupFeedback> planTrajectoryActionClient;
+    private ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback> executeTrajectoryActionClient;
 
     private State state;
     private RobotTrajectoryMsg latestTrajectory;
@@ -80,15 +92,19 @@ public class MoveGroupController : MonoBehaviour
         planTrajectoryActionClient = new ROSActionClient<MoveGroupGoal, MoveGroupResult, MoveGroupFeedback>(planTrajectoryActionName);
         executeTrajectoryActionClient = new ROSActionClient<ExecuteTrajectoryGoal, ExecuteTrajectoryResult, ExecuteTrajectoryFeedback>(executeTrajectoryActionName);
 
-        planTrajectoryAction.Enable();
-        executeTrajectoryAction.Enable();
-        toggleGripperAction.Enable();
+        state = State.HasNoPlan;
 
+        planTrajectoryAction.Enable();
         planTrajectoryAction.performed += (inputAction) => PlanTrajectory();
+
+        executeTrajectoryAction.Enable();
         executeTrajectoryAction.performed += (inputAction) => ExecuteTrajectory();
+
+        toggleGripperAction.Enable();
         toggleGripperAction.performed += (inputAction) => ToggleGripper();
 
-        gripperIndicator.gameObject.SetActive(false);
+        gripperIndicator.gameObject.SetVisability(false);
+        feedbackText.text = "Welcome!";
     }
 
     private void PlanTrajectory()
@@ -104,15 +120,16 @@ public class MoveGroupController : MonoBehaviour
 
                 feedbackText.text = "Attempting to plan trajectory...";
 
-                gripperIndicator.gameObject.SetActive(true);
+                gripperIndicator.gameObject.SetVisability(true);
                 gripperIndicator.transform.position = gameObject.transform.position;
                 gripperIndicator.transform.rotation = gameObject.transform.rotation;
                 var tintColor = Color.blue;
                 tintColor.a = 0.5f;
                 gripperIndicator.SetTintColor(tintColor);
 
-                var pose = GetCurrentPose();
-                var goal = GetPlanGoal(pose);
+                var pose = GetRelativePose(referenceFrameId, targetLinkTransform);
+                var goal = GetTrajectoryPlanGoal(pose);
+
                 planTrajectoryActionClient.Send(goal, (resultState, result) =>
                 {
                     switch (resultState)
@@ -124,7 +141,9 @@ public class MoveGroupController : MonoBehaviour
                         case ResultState.Rejected:
                             state = State.HasFailedPlan;
 
-                            feedbackText.text = "Plan has failed!";
+                            var errorId = result.error_code.val;
+                            var errorMessage = result.error_code.GetErrorMessage();
+                            feedbackText.text = $"Plan has failed: {errorMessage}!";
 
                             tintColor = Color.red;
                             tintColor.a = 0.5f;
@@ -180,10 +199,11 @@ public class MoveGroupController : MonoBehaviour
 
                 feedbackText.text = "Attempting to execute trajectory...";
 
-                gripperIndicator.gameObject.SetActive(false);
+                gripperIndicator.gameObject.SetVisability(false);
 
                 var goal = new ExecuteTrajectoryGoal();
                 goal.trajectory = latestTrajectory;
+
                 executeTrajectoryActionClient.Send(goal, (resultState, result) =>
                 {
                     switch (resultState)
@@ -213,8 +233,7 @@ public class MoveGroupController : MonoBehaviour
 
     private void ToggleGripper()
     {
-        Debug.Log("Toggle Gripper");
-        var errorPrefix = "Cannot plan trajectory: ";
+        var errorPrefix = "Cannot toggle gripper: ";
 
         switch (state)
         {
@@ -223,8 +242,14 @@ public class MoveGroupController : MonoBehaviour
             case State.HasSuccessfulPlan:
                 state = State.WaitingForPlan;
 
-                var fingersState = GetGripperState();
-                var goal = GetGripperPlanGoal(fingersState);
+                var gripperState = GetGripperState();
+                var goalGripperState = gripperState switch
+                {
+                    GripperState.Open => GripperState.Closed,
+                    GripperState.Closed => GripperState.Open,
+                    _ => GripperState.Open,
+                };
+                var goal = GetGripperPlanGoal(goalGripperState);
 
                 planTrajectoryActionClient.Send(goal, (resultState, result) =>
                 {
@@ -259,39 +284,39 @@ public class MoveGroupController : MonoBehaviour
         }
     }
 
-    private PoseStampedMsg GetCurrentPose()
+    private PoseStampedMsg GetRelativePose(string referenceFrameId, Transform relativeTransform)
     {
-        var referenceObject = tfSystem.GetTransformObject(frameId);
+        var referenceObject = tfSystem.GetTransformObject(referenceFrameId);
 
-        var relativePosition = referenceObject.transform.InverseTransformPoint(gameObject.transform.position);
-        var relativeRotation = referenceObject.transform.InverseTransformRotation(gameObject.transform.rotation);
+        var relativePosition = referenceObject.transform.InverseTransformPoint(transform.position);
+        var relativeRotation = referenceObject.transform.InverseTransformRotation(transform.rotation);
 
-        var currentPose = new PoseStampedMsg();
-        currentPose.header.stamp = rosTime.Now();
-        currentPose.header.frame_id = frameId;
+        var pose = new PoseStampedMsg();
+        pose.header.stamp = rosTime.Now();
+        pose.header.frame_id = this.referenceFrameId;
+        pose.pose.position = relativePosition.To<FLU>();
+        pose.pose.orientation = relativeRotation.To<FLU>();
 
-        currentPose.pose.position = relativePosition.To<FLU>();
-        currentPose.pose.orientation = relativeRotation.To<FLU>();
-
-        return currentPose;
+        return pose;
     }
 
-    private bool GetGripperState()
+    private GripperState GetGripperState()
     {
-        var gripperLink = gameObject.transform.Find("gripper_link").gameObject;
-        var leftFinger = gripperLink.transform.Find("l_gripper_finger_link").gameObject;
-        var fingersPosition = leftFinger.GetComponent<ArticulationBody>().jointPosition[0];
-        var fingersOpen = fingersPosition > 0.048f;
-
-        return fingersOpen;
+        var fingerJoint = fingerArticulationBody.jointPosition[0];
+        var isOpen = fingerJoint < fingerJointThreshold;
+        return isOpen switch
+        {
+            true => GripperState.Open,
+            false => GripperState.Closed,
+        };
     }
 
-    private MoveGroupGoal GetPlanGoal(PoseStampedMsg pose)
+    private WorkspaceParametersMsg GetWorkspaceParameters()
     {
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/WorkspaceParameters.html
         var workspaceParameters = new WorkspaceParametersMsg();
-        workspaceParameters.header.frame_id = frameId;
-        workspaceParameters.header.stamp = pose.header.stamp;
+        workspaceParameters.header.frame_id = referenceFrameId;
+        workspaceParameters.header.stamp = rosTime.Now();
         // TODO: Allow the workspace to be specified
         workspaceParameters.min_corner.x = -1.0;
         workspaceParameters.min_corner.y = -0.0;
@@ -299,7 +324,57 @@ public class MoveGroupController : MonoBehaviour
         workspaceParameters.max_corner.x = +1.0;
         workspaceParameters.max_corner.y = +2.0;
         workspaceParameters.max_corner.z = +1.0;
+        return workspaceParameters;
+    }
 
+    private MotionPlanRequestMsg GetPartialMotionPlanRequest()
+    {
+        // http://docs.ros.org/en/api/moveit_msgs/html/msg/MotionPlanRequest.html
+        var request = new MotionPlanRequestMsg();
+        request.workspace_parameters = GetWorkspaceParameters();
+        request.start_state.is_diff = true;
+        // request.goal_constraints = ...;
+        // request.path_constraints = ...;
+        // request.trajectory_constraints = ...;
+        // request.reference_trajectories = ...;
+        // request.pipeline_id = ...;
+        // request.planner_id = ...;
+        // request.group_name = ...;
+        request.num_planning_attempts = planningAttempts;
+        request.allowed_planning_time = allowedPlanningTime;
+        request.max_velocity_scaling_factor = maxVelocityScalingFactor;
+        request.max_acceleration_scaling_factor = maxAccelerationScalingFactor;
+        // request.cartesian_speed_end_effector_link = ...;
+        // request.max_cartesian_speed = ...;
+        return request;
+    }
+
+    private PlanningOptionsMsg GetPlanningOptions()
+    {
+        // http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningOptions.html
+        var planningOptions = new PlanningOptionsMsg();
+        planningOptions.planning_scene_diff.is_diff = true;
+        planningOptions.planning_scene_diff.robot_state.is_diff = true;
+        planningOptions.plan_only = true;
+        planningOptions.look_around = false;
+        // planning_options.look_around_attempts = ...;
+        // planning_options.max_safe_execution_cost = ...;
+        planningOptions.replan = false;
+        // planning_options.replan_attempts = ...;
+        // planning_options.replan_delay = ...;
+        return planningOptions;
+    }
+
+    private MoveGroupGoal GetPartialMoveGroupGoal()
+    {
+        var moveGroupGoal = new MoveGroupGoal();
+        moveGroupGoal.request = GetPartialMotionPlanRequest();
+        moveGroupGoal.planning_options = GetPlanningOptions();
+        return moveGroupGoal;
+    }
+
+    private MoveGroupGoal GetTrajectoryPlanGoal(PoseStampedMsg pose)
+    {
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/PositionConstraint.html
         var positionConstraint = new PositionConstraintMsg();
         positionConstraint.header = pose.header;
@@ -314,7 +389,7 @@ public class MoveGroupController : MonoBehaviour
         positionConstraint.constraint_region.primitive_poses[0] = new PoseMsg();
         positionConstraint.constraint_region.primitive_poses[0].position = pose.pose.position;
         // position_constraint.constraint_region.primitive_poses[0].orientation = ...;
-        positionConstraint.weight = 1.0f;
+        positionConstraint.weight = 1.0;
 
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/OrientationConstraint.html
         var orientationConstraint = new OrientationConstraintMsg();
@@ -325,144 +400,82 @@ public class MoveGroupController : MonoBehaviour
         orientationConstraint.absolute_y_axis_tolerance = orientationTolerance;
         orientationConstraint.absolute_z_axis_tolerance = orientationTolerance;
         // orientation_constraint.parameterization = ...; 
-        orientationConstraint.weight = 1.0f;
+        orientationConstraint.weight = 1.0;
 
+        // http://docs.ros.org/en/api/moveit_msgs/html/msg/VisibilityConstraint.html
+        var visibilityConstraint = new VisibilityConstraintMsg();
+        visibilityConstraint.target_radius = 0.1;
+        visibilityConstraint.target_pose = GetRelativePose(referenceFrameId, targetVisibilityTransform);
+        visibilityConstraint.cone_sides = 8;
+        visibilityConstraint.sensor_pose.header.frame_id = sensorFrameId;
+        visibilityConstraint.sensor_pose.header.stamp = rosTime.Now();
+        // visibilityConstraint.sensor_pose.pose = ...;
+        visibilityConstraint.max_view_angle = 0.0;
+        visibilityConstraint.max_range_angle = 0.0;
+        visibilityConstraint.sensor_view_direction = VisibilityConstraintMsg.SENSOR_X;
+        visibilityConstraint.weight = visibilityConstraintWeight;
 
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/Constraints.html
         var goalConstraint = new ConstraintsMsg();
         // goal_constraint.name = ...;
+        // goalConstraint.joint_constraints = ...;
         goalConstraint.position_constraints = new PositionConstraintMsg[1];
         goalConstraint.position_constraints[0] = positionConstraint;
         goalConstraint.orientation_constraints = new OrientationConstraintMsg[1];
         goalConstraint.orientation_constraints[0] = orientationConstraint;
+        if (useVisibilityConstraint)
+        {
+            goalConstraint.visibility_constraints = new VisibilityConstraintMsg[1];
+            goalConstraint.visibility_constraints[0] = visibilityConstraint;
+        }
 
-        // http://docs.ros.org/en/api/moveit_msgs/html/msg/MotionPlanRequest.html
-        var request = new MotionPlanRequestMsg();
-        request.workspace_parameters = workspaceParameters;
-        request.start_state.is_diff = true;
-        request.goal_constraints = new ConstraintsMsg[1];
-        request.goal_constraints[0] = goalConstraint;
-        // request.path_constraints = ...;
-        // request.trajectory_constraints = ...;
-        // request.reference_trajectories = ...;
-        // request.pipeline_id = ...;
-        // request.planner_id = ...;
-        request.group_name = armGroupName;
-        request.num_planning_attempts = planningAttempts;
-        request.allowed_planning_time = allowedPlanningTime;
-        request.max_velocity_scaling_factor = maxVelocityScalingFactor;
-        request.max_acceleration_scaling_factor = maxAccelerationScalingFactor;
-        // request.cartesian_speed_end_effector_link = ...;
-        // request.max_cartesian_speed = ...;
-
-        // http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningOptions.html
-        var planningOptions = new PlanningOptionsMsg();
-        planningOptions.planning_scene_diff.is_diff = true;
-        planningOptions.planning_scene_diff.robot_state.is_diff = true;
-        planningOptions.plan_only = true;
-        planningOptions.look_around = false;
-        // planning_options.look_around_attempts = ...;
-        // planning_options.max_safe_execution_cost = ...;
-        planningOptions.replan = false;
-        // planning_options.replan_attempts = ...;
-        // planning_options.replan_delay = ...;
-
-        var moveGroupGoal = new MoveGroupGoal();
-        moveGroupGoal.request = request;
-        moveGroupGoal.planning_options = planningOptions;
+        var moveGroupGoal = GetPartialMoveGroupGoal();
+        moveGroupGoal.request.group_name = armGroupName;
+        moveGroupGoal.request.goal_constraints = new ConstraintsMsg[1];
+        moveGroupGoal.request.goal_constraints[0] = goalConstraint;
 
         return moveGroupGoal;
     }
 
-    private void SetFeedback(string feedback)
+    private MoveGroupGoal GetGripperPlanGoal(GripperState gripperState)
     {
-        feedbackText.text = feedback;
-    }
-
-    private MoveGroupGoal GetGripperPlanGoal(bool fingersOpen)
-    {
-        var jointGoal = 0f;
-        if (!fingersOpen)
+        var jointPosition = gripperState switch
         {
-            jointGoal = 0.5f;
-            Debug.Log("Opening gripper");
-        }
-        else
-        {
-            Debug.Log("Closing gripper");
-        }
-
-        // http://docs.ros.org/en/api/moveit_msgs/html/msg/WorkspaceParameters.html
-        var workspaceParameters = new WorkspaceParametersMsg();
-        workspaceParameters.header.frame_id = frameId;
-        workspaceParameters.header.stamp = rosTime.Now();
-        // TODO: Allow the workspace to be specified
-        workspaceParameters.min_corner.x = -1.0;
-        workspaceParameters.min_corner.y = -0.0;
-        workspaceParameters.min_corner.z = -1.0;
-        workspaceParameters.max_corner.x = +1.0;
-        workspaceParameters.max_corner.y = +2.0;
-        workspaceParameters.max_corner.z = +1.0;
+            GripperState.Open => 0.0,
+            GripperState.Closed => 0.5,
+            _ => 0.0,
+        };
 
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/JointConstraint.html
         var leftJointConstraint = new JointConstraintMsg();
         leftJointConstraint.joint_name = "l_gripper_finger_joint";
-        leftJointConstraint.position = jointGoal;
+        leftJointConstraint.position = jointPosition;
         leftJointConstraint.tolerance_above = jointTolerance;
         leftJointConstraint.tolerance_below = jointTolerance;
         leftJointConstraint.weight = 1.0f;
+
+        // http://docs.ros.org/en/api/moveit_msgs/html/msg/JointConstraint.html
         var rightJointConstraint = new JointConstraintMsg();
         rightJointConstraint.joint_name = "r_gripper_finger_joint";
-        rightJointConstraint.position = jointGoal;
+        rightJointConstraint.position = jointPosition;
         rightJointConstraint.tolerance_above = jointTolerance;
         rightJointConstraint.tolerance_below = jointTolerance;
-        rightJointConstraint.weight = 1.0f;
+        rightJointConstraint.weight = 1.0;
 
         // http://docs.ros.org/en/api/moveit_msgs/html/msg/Constraints.html
         var goalConstraint = new ConstraintsMsg();
         // goal_constraint.name = ...;
-        // goalConstraint.position_constraints = new PositionConstraintMsg[1];
-        // goalConstraint.position_constraints[0] = positionConstraint;
-        // goalConstraint.orientation_constraints = new OrientationConstraintMsg[1];
-        // goalConstraint.orientation_constraints[0] = orientationConstraint;
         goalConstraint.joint_constraints = new JointConstraintMsg[2];
         goalConstraint.joint_constraints[0] = leftJointConstraint;
         goalConstraint.joint_constraints[1] = rightJointConstraint;
+        // goalConstraint.position_constraints = ...;
+        // goalConstraint.orientation_constraints = ...;
+        // goalConstraint.visibility_constraints = ...;
 
-        // http://docs.ros.org/en/api/moveit_msgs/html/msg/MotionPlanRequest.html
-        var request = new MotionPlanRequestMsg();
-        request.workspace_parameters = workspaceParameters;
-        request.start_state.is_diff = true;
-        request.goal_constraints = new ConstraintsMsg[1];
-        request.goal_constraints[0] = goalConstraint;
-        // request.path_constraints = ...;
-        // request.trajectory_constraints = ...;
-        // request.reference_trajectories = ...;
-        // request.pipeline_id = ...;
-        // request.planner_id = ...;
-        request.group_name = gripperGroupName;
-        request.num_planning_attempts = planningAttempts;
-        request.allowed_planning_time = allowedPlanningTime;
-        request.max_velocity_scaling_factor = maxVelocityScalingFactor;
-        request.max_acceleration_scaling_factor = maxAccelerationScalingFactor;
-        // request.cartesian_speed_end_effector_link = ...;
-        // request.max_cartesian_speed = ...;
-
-        // http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningOptions.html
-        var planningOptions = new PlanningOptionsMsg();
-        planningOptions.planning_scene_diff.is_diff = true;
-        planningOptions.planning_scene_diff.robot_state.is_diff = true;
-        planningOptions.plan_only = true;
-        planningOptions.look_around = false;
-        // planning_options.look_around_attempts = ...;
-        // planning_options.max_safe_execution_cost = ...;
-        planningOptions.replan = false;
-        // planning_options.replan_attempts = ...;
-        // planning_options.replan_delay = ...;
-
-        var moveGroupGoal = new MoveGroupGoal();
-        moveGroupGoal.request = request;
-        moveGroupGoal.planning_options = planningOptions;
+        var moveGroupGoal = GetPartialMoveGroupGoal();
+        moveGroupGoal.request.group_name = gripperGroupName;
+        moveGroupGoal.request.goal_constraints = new ConstraintsMsg[1];
+        moveGroupGoal.request.goal_constraints[0] = goalConstraint;
 
         return moveGroupGoal;
     }
