@@ -141,9 +141,9 @@ public class MoveGroupController : MonoBehaviour
                         case ResultState.Rejected:
                             state = State.HasFailedPlan;
 
-                            var errorId = result.error_code.val;
-                            var errorMessage = result.error_code.GetErrorMessage();
-                            feedbackText.text = $"Plan has failed: {errorMessage}!";
+                            // var errorId = result.error_code.val;
+                            // var errorMessage = result.error_code.GetErrorMessage();
+                            feedbackText.text = "Plan has failed!";
 
                             tintColor = Color.red;
                             tintColor.a = 0.5f;

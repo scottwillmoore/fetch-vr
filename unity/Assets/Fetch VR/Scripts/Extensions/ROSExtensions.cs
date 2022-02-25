@@ -49,7 +49,7 @@ public static class ROSExtensions
             MoveItErrorCodesMsg.INVALID_ROBOT_STATE => "Invalid robot state",
             MoveItErrorCodesMsg.MOTION_PLAN_INVALIDATED_BY_ENVIRONMENT_CHANGE => "Motion plan invalidated by environment change",
             MoveItErrorCodesMsg.NO_IK_SOLUTION => "No IK solution",
-            MoveItErrorCodesMsg.PLANNING_FAILED => "Planning failed",
+            MoveItErrorCodesMsg.PLANNING_FAILED => "Planning has failed",
             MoveItErrorCodesMsg.PREEMPTED => "Preempted",
             MoveItErrorCodesMsg.ROBOT_STATE_STALE => "Robot state stale",
             MoveItErrorCodesMsg.SENSOR_INFO_STALE => "Sensor info stale",

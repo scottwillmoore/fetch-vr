@@ -176,8 +176,6 @@ public class ROSActionClient<TGoal, TResult, TFeedback>
 
     private void HandleTransition(GoalState previousState, GoalTransition goalTransition, GoalState newState)
     {
-        Debug.Log($"{previousState.ToString()} {goalTransition.ToString()} {newState.ToString()}");
-
         goalState = newState;
 
         switch (goalState)
