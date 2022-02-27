@@ -4,6 +4,8 @@
 
 This repository contains all assets and code used to develop a VR experience on the [Oculus Quest 2](https://www.oculus.com/quest-2/) to control the [Fetch Mobile Manipulator](https://fetchrobotics.com/fetch-mobile-manipulator/). The goal is to explore various methods to control and visualise the robot and develop research that will quantify these results through user studies.
 
+![Demonstration of Fetch being controlled through VR](./README.mp4)
+
 ## Getting Started
 
 ### Install Git LFS
@@ -72,13 +74,13 @@ Login to your unmerged Oculus developer account and connect to the headset.
 
 ## Documentation
 
-The project is divided into two primary components.
+The project is divided into three directories: `docker`, `ros` and `unity`. Each directory contains additional documentation and insight that may be useful for other developers that work on similar projects.
 
-The `ros` folder contains all the scripts that are required to run on the robot. This is run in ROS on linux.
+- The `docker` directory contains an experimental [Docker](https://www.docker.com/) container that has been successfully used on Windows to develop with ROS. It is designed to run with the new [Windows Subsystem for Linux GUI](https://github.com/microsoft/wslg).
 
-The `unity` folder contains the Unity project which creates a connection with ROS using the [ROS TCP Connector](https://github.com/Unity-Technologies/ROS-TCP-Connector) package.
+- The `ros` directory contains all the scripts that are required to run in the Docker development environment through simulation or on the real robot.
 
-In addition, there is also an experimental [Docker](https://www.docker.com/) container found in the `.devcontainer` folder that has been successfully used on Windows to develop ROS components. It can run inside [Docker for Windows](https://docs.docker.com/desktop/windows/install/) and integrates with the [Windows Subsystem for Linux GUI](https://github.com/microsoft/wslg).
+- The `unity` folder contains the Unity project which connects to the ROS master using the [ROS TCP Connector](https://github.com/Unity-Technologies/ROS-TCP-Connector) package. It interacts with the VR headset and has been tested with an Oculus Quest 2.
 
 ## License
 
