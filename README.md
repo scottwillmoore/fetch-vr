@@ -4,7 +4,7 @@
 
 This repository contains all assets and code used to develop a VR experience on the [Oculus Quest 2](https://www.oculus.com/quest-2/) to control the [Fetch Mobile Manipulator](https://fetchrobotics.com/fetch-mobile-manipulator/). The goal is to explore various methods to control and visualise the robot and develop research that will quantify these results through user studies.
 
-![Demonstration of Fetch being controlled through VR](./README.mp4)
+https://user-images.githubusercontent.com/9512557/155872489-d8b26750-9ad9-4818-9002-155b84904401.mp4
 
 ## Getting Started
 
